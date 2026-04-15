@@ -1,9 +1,10 @@
 class Course < ApplicationRecord
     validates :title, :description, presence: true
     validates :title, length: { in: 5..100 }, uniqueness: { case_sensitive:false }
-    validates :description, length: { in: 50..600 }
+    validates :description, length: { in: 10..600 }
 
     enum tier: { free:"free", pro:"pro" }, _default: :free
+    enum status: { published:"published", draft:"draft" }, _default: :draft
     has_many :enrollments
     has_many :users, through: :enrollments
     has_many :lessons

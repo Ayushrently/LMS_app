@@ -1,0 +1,24 @@
+<h1> Create new Course </h1>
+
+<%= form_with model: @course do |form| %>
+    <div>
+        <%= form.label :title, "Course title" %>
+        <%= form.text_field :title %>
+    </div>
+    <div>
+        <%= form.label :description, "Description" %>
+        <%= form.text_area :description %>
+    </div>
+    <div>
+        <%= form.label :tier, "Course Tier" %>
+        <%= form.radio_button :tier, "free" %>
+        <%= form.label :tier_free, "free"%>
+        <%= form.radio_button :tier, "pro" %>
+        <%= form.label :tier_pro, "pro"%>
+    </div>
+
+    <div>
+        <%= form.submit %>
+    </div>
+    
+<% end %>

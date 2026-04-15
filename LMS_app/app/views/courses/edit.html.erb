@@ -1,0 +1,88 @@
+<h1><%= "Edit courses " %></h1>
+
+<div class="editing_values">
+    <div id="display_title">
+        <%= "Title : #{@course.title} "%>
+        <button type="button" onclick="toggle_state('title')">Edit</button>
+    </div>
+
+    <div id="edit_title" style="display:none;">
+        <%= form_with model:@course do |form| %>
+            <%= form.label :title, "Title :" %>
+            <%= form.text_field :title %>
+            <%= form.submit "Save" %>
+            <button type="button" onclick="toggle_state('title')">Cancel</button>
+        <%end%>
+    </div>
+</div>
+<div class="editing_values">
+    <div id="display_description">
+        <%= "Description : #{@course.description} "%>
+        <button type="button" onclick="toggle_state('description')">Edit</button>
+    </div>
+
+    <div id="edit_description" style="display:none;">
+        <%= form_with model:@course do |form| %>
+            <%= form.label :description, "Description :" %>
+            <%= form.text_area :description %>
+            <%= form.submit "Save" %>
+            <button type="button" onclick="toggle_state('description')">Cancel</button>
+        <%end%>
+    </div>
+</div>
+<div class="editing_values">
+    <div id="display_tier">
+        <%= "Tier : #{@course.tier} "%>
+        <button type="button" onclick="toggle_state('tier')">Edit</button>
+    </div>
+
+    <div id="edit_tier" style="display:none;">
+        <%= form_with model:@course do |form| %>
+            <%= form.label :tier, "Tier :" %>
+            <%= form.radio_button :tier, "free"%>
+            <%= form.label :tier_free, 'free' %>
+            <%= form.radio_button :tier, "pro" %>
+            <%= form.label :tier_pro, "pro"%>
+            <%= form.submit "Save" %>
+            <button type="button" onclick="toggle_state('tier')">Cancel</button>
+        <%end%>
+    </div>
+</div>
+
+<div class="editing_values">
+    <div id="display_status">
+        <%= "Status : #{@course.status} "%>
+        <button type="button" onclick="toggle_state('status')">Edit</button>
+    </div>
+
+    <div id="edit_status" style="display:none;">
+        <%= form_with model:@course do |form| %>
+            <%= form.label :status, "Status :" %>
+            <%= form.radio_button :status, "published"%>
+            <%= form.label :status_published, 'Publish' %>
+            <%= form.radio_button :status, "draft" %>
+            <%= form.label :status_draft, "Draft"%>
+            <%= form.submit "Save" %>
+            <button type="button" onclick="toggle_state('status')">Cancel</button>
+        <%end%>
+    </div>
+</div>
+
+<%= link_to "Add lessons", new_course_lesson_path(@course)%> 
+<span>|</span>
+<%= link_to "Back to courses", courses_path %>
+
+<script>
+    function toggle_state(value){
+        display_value = document.getElementById('display_'+ value );
+        edit_value = document.getElementById("edit_"+ value );
+
+        if(display_value.style.display == 'none'){
+            display_value.style.display = 'block';
+            edit_value.style.display = 'none';
+        }else{
+            display_value.style.display = 'none';
+            edit_value.style.display = 'block'
+        }
+    }
+</script>
