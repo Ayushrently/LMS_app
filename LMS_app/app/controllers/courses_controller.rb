@@ -1,6 +1,10 @@
 class CoursesController < ApplicationController
     def index
-        @courses = Course.select(:title, :id).order(created_at: :desc).limit(10)
+        if current_user&.subscription&.plan_name == "pro"
+            @courses = Course.select(:title, :id).order(created_at: :desc).limit(10)
+        else
+            @courses = Course.where(tier: "free").select(:title, :id).order(created_at: :desc).limit(10)
+        end
     end
 
     def new 
@@ -20,15 +24,23 @@ class CoursesController < ApplicationController
     def update
         @course = Course.find(params[:id])
 
-        if Course.update(course_params)
-            redirect_to edit_course_path(@course)
+        if @course.update(course_params)
+            redirect_to courses_path(@course)
         else
             render :edit, status: :unprocessable_entity
         end
     end
 
     def destroy
+        @course = Course.find(params[:id])
+        @course.destroy
+        redirect_to courses_path
+    end
 
+    def show
+        @course = Course.find(params[:id])
+        @comments = @course.comments.order(created_at: :desc).limit(10)
+        @new_comment = Comment.new
     end
 
     def edit

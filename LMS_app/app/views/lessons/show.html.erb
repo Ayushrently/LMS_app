@@ -1,0 +1,13 @@
+<h1>Lesson: <%= @lesson.title %></h1>
+<div>
+    <h2>Content</h2>
+    <p><%= @lesson.content %></p>
+</div>
+<div>
+    <%= link_to "Back to Course", course_path(@lesson.course_id) %>
+</div>
+
+<%= render "comments/comments",
+      comments: @comments,
+      new_comment: @new_comment,
+      comment_path: course_lesson_comments_path(@course, @lesson) %>

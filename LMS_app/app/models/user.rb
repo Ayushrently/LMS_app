@@ -1,8 +1,8 @@
 class User < ApplicationRecord
+    enum role:{ student:"student", author:"author", admin:"admin" }, _default: :student
     validates :email, presence: true, format: { with: /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i}, uniqueness: { case_sensitive: false }
     validates :role, inclusion: { in: User.roles.keys }
 
-    enum role:{ student:"student", author:"author", admin:"admin" }, _default: :student
 
     has_one :profile
     has_one :subscription, through: :profile

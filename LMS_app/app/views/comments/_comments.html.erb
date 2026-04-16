@@ -1,0 +1,26 @@
+<h2>Comments</h2>
+
+<% if comments.any? %>
+  <ul>
+    <% comments.each do |comment| %>
+      <li>
+        <strong><%= comment.user.email %></strong>: <%= comment.body %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>No comments yet.</p>
+<% end %>
+
+<%= form_with model: new_comment, url: comment_path do |form| %>
+  <% if flash[:alert].present? %>
+    <p><%= flash[:alert] %></p>
+  <% end %>
+  <div>
+    <%= form.label :body, "Add a comment" %>
+    <%= form.text_area :body %>
+  </div>
+  <div>
+    <%= form.submit "Post Comment" %>
+  </div>
+<% end %>

@@ -5,9 +5,9 @@ class Course < ApplicationRecord
 
     enum tier: { free:"free", pro:"pro" }, _default: :free
     enum status: { published:"published", draft:"draft" }, _default: :draft
-    has_many :enrollments
+    has_many :enrollments, dependent: :destroy
     has_many :users, through: :enrollments
-    has_many :lessons
+    has_many :lessons, dependent: :destroy
     has_and_belongs_to_many :authors, class_name: 'User', join_table: :courses_users
-    has_many :comments, as: :commentable
+    has_many :comments, as: :commentable, dependent: :destroy
 end

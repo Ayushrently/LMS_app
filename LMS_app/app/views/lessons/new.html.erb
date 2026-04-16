@@ -1,1 +1,25 @@
 <h1> Create Lesson </h1>
+
+<div>
+    <div>
+        <%= form_with model:[@course, @lesson] do |form| %>
+        <div>
+            <%= form.label :title, "Title" %>
+            <%= form.text_field :title %>
+        </div>
+        <div>
+            <%= form.label :content, "Content" %>
+            <%= form.text_area :content %>
+        </div>
+        <div>
+            <label><%= "Position: #{@lesson.position}" %></label>
+            <%= form.hidden_field :course_id %>
+            <%= form.hidden_field :position %>
+        </div>
+        <div>
+            <%= form.submit %>
+            <button type="button" onclick="window.location='<%= course_path(@course) %>'">Cancel</button>
+        </div>
+        <%end%>
+    </div>
+</div>

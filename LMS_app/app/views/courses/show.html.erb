@@ -1,0 +1,18 @@
+<h1>Course : <%= @course.title %> </h1>
+
+<div>
+    <h2>Lessons</h2>
+    <ul>
+        <% lessons = Lesson.where(course_id: @course.id).order(:position).pluck(:title,:id) %>
+        <% lessons.each do |title,id| %>
+            <li> <a href=<%=course_lesson_path(@course.id, id)%>% ><%= title %></a> </li>
+        <% end %>
+    </ul>
+    <%= link_to "Add Lesson", new_course_lesson_path(@course) %>
+    <%= link_to "Back to Courses", courses_path %>
+</div>
+
+<%= render "comments/comments",
+      comments: @comments,
+      new_comment: @new_comment,
+      comment_path: course_comments_path(@course) %>

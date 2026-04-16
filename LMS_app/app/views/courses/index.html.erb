@@ -1,12 +1,30 @@
-<h1> Courses </h1>
+<div class="Nav_bar" > 
+    <div id="Nav_bar_title">
+        Courses
+    </div>
 
-<%= link_to "Create new course", new_course_path %>
+    <div id="Nav_bar_links">
+        <%= link_to "Create new course", new_course_path %>
+    </div>
+
+    <div id="profile_link">
+        <% if current_user.present? %>
+        <%= link_to "View Profile", user_profile_path(current_user) %>
+        <span>|</span>
+        <%= link_to "Logout", new_user_path %>
+        <% else %>
+        <%= link_to "Login", new_user_path %>
+        <% end %>
+    </div>
+</div>
+
+
 
 <ul> 
     <% @courses.each do |course| %>
         <li>
-            <%= course.title %> 
-            <%= link_to "Edit", edit_course_path(course.id) %>
+            <%= link_to "#{course.title}", course_path(course.id) %> 
+            <%= button_to "Edit", edit_course_path(course.id), method: :get %>
         </li>
     <% end %>
 </ul>

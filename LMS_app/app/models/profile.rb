@@ -4,5 +4,7 @@ class Profile < ApplicationRecord
   validates :username, uniqueness: true
 
   belongs_to :user
-  has_one :subscription
+  has_one :subscription, dependent: :destroy, inverse_of: :profile
+
+  accepts_nested_attributes_for :subscription, update_only: true
 end

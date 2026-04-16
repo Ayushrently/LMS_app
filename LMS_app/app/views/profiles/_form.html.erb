@@ -1,0 +1,45 @@
+<%= form_with model: [@user, @profile] do |form| %>
+  <% if @profile.errors.any? %>
+    <ul>
+      <% @profile.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <% if @profile.subscription&.errors&.any? %>
+    <ul>
+      <% @profile.subscription.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <div>
+    <%= form.label :name, "Name" %>
+    <%= form.text_field :name %>
+  </div>
+
+  <div>
+    <%= form.label :username, "Username" %>
+    <%= form.text_field :username %>
+  </div>
+
+  <div>
+    <%= form.label :bio, "Bio" %>
+    <%= form.text_area :bio %>
+  </div>
+
+  <h2>Subscription</h2>
+
+  <%= form.fields_for :subscription do |sub_fields| %>
+    <div>
+      <%= sub_fields.label :plan_name, "Plan name" %>
+      <%= sub_fields.select :plan_name, Subscription.plan_names.keys.map { |plan_name| [plan_name.titleize, plan_name] } %>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>
