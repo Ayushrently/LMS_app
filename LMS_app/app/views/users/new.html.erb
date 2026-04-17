@@ -1,6 +1,9 @@
-<h1>Login</h1>
+<div class="Nav_bar">
+  <div id="Nav_bar_title">Login</div>
+</div>
 
-<%= form_with model: @user do |form| %>
+<%= form_with model: @user, html: { class: "app_form" } do |form| %>
+  <%= render "errors/error", context:@user %>
   <div>
     <%= form.label :email, "Email" %>
     <%= form.email_field :email %>

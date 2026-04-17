@@ -1,6 +1,31 @@
-<h1>Edit Course</h1>
+<div class="Nav_bar">
+  <div id="Nav_bar_title">Edit Course</div>
+  <div id="Nav_bar_links">
+    <%= link_to "Course", course_path(@course) %>
+  </div>
+  <div id="Nav_bar_links">
+    <%= link_to "Back to Courses", courses_path %>
+  </div>
+  <div id="Nav_bar_links">
+    <%= link_to "Add lessons", new_course_lesson_path(@course) %>
+  </div>
+  <div id="profile_link">
+    <% if current_user.present? %>
+      <%= link_to "Profile", user_profile_path(current_user) %>
+      <span>|</span>
+      <%= link_to "Logout", new_user_path %>
+    <% else %>
+      <%= link_to "Login", new_user_path %>
+    <% end %>
+  </div>
+</div>
 
-<%= form_with model: @course do |form| %>
+<div class="content_panel">
+  <p><%= "Author: #{@course.creator}" %></p>
+</div>
+
+<%= form_with model: @course, html: { class: "app_form" } do |form| %>
+  <%= render "errors/error", context:@course %>
   <div>
     <%= form.label :title, "Title" %>
     <%= form.text_field :title %>
@@ -11,7 +36,7 @@
     <%= form.text_area :description %>
   </div>
 
-  <div>
+  <div class="horizontal-group" >
     <%= form.label :tier, "Tier" %>
     <%= form.radio_button :tier, "free" %>
     <%= form.label :tier_free, "Free" %>
@@ -19,7 +44,7 @@
     <%= form.label :tier_pro, "Pro" %>
   </div>
 
-  <div>
+  <div class="horizontal-group" >
     <%= form.label :status, "Status" %>
     <%= form.radio_button :status, "published" %>
     <%= form.label :status_published, "Published" %>
@@ -30,9 +55,6 @@
   <div>
     <%= form.submit "Save" %>
   </div>
+    <%= link_to "Delete this course", course_path(@course.id), data: { turbo_method: :delete, turbo_confirm: "Delete this course?" }, class: "btn-link" %>
 <% end %>
 
-<%= link_to "Add lessons", new_course_lesson_path(@course) %>
-<span>|</span>
-<%= link_to "Back to courses", courses_path %>
-<%= button_to "Delete", course_path(@course.id), method: :delete, data: { turbo_confirm: "Delete this course?" } %>

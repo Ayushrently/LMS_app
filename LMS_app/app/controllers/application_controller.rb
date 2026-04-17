@@ -1,5 +1,5 @@
 class ApplicationController < ActionController::Base
-  helper_method :current_user
+  helper_method :current_user, :current_user_author?
 
   CURRENT_USER_FILE = Rails.root.join("tmp", "current_user_id.txt")
 
@@ -18,5 +18,9 @@ class ApplicationController < ActionController::Base
   def clear_current_user
     File.delete(CURRENT_USER_FILE) if File.exist?(CURRENT_USER_FILE)
     @current_user = nil
+  end
+
+  def current_user_author?
+    current_user&.author?
   end
 end

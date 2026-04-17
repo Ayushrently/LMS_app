@@ -1,8 +1,28 @@
+<div class="Nav_bar">
+    <div id="Nav_bar_title">New Lesson</div>
+    <div id="Nav_bar_links">
+        <%= link_to "Back to Course", course_path(@course) %>
+    </div>
+    <div id="Nav_bar_links">
+        <%= link_to "Courses", courses_path %>
+    </div>
+    <div id="profile_link">
+        <% if current_user.present? %>
+            <%= link_to "Profile", user_profile_path(current_user) %>
+            <span>|</span>
+            <%= link_to "Logout", new_user_path %>
+        <% else %>
+            <%= link_to "Login", new_user_path %>
+        <% end %>
+    </div>
+</div>
+
 <h1> Create Lesson </h1>
 
 <div>
     <div>
-        <%= form_with model:[@course, @lesson] do |form| %>
+        <%= form_with model:[@course, @lesson], html: { class: "app_form" } do |form| %>
+        <%= render "errors/error", context:@lesson %>
         <div>
             <%= form.label :title, "Title" %>
             <%= form.text_field :title %>

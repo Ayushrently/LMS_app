@@ -1,3 +1,19 @@
+<div class="Nav_bar">
+	<div id="Nav_bar_title">Edit Profile</div>
+	<div id="Nav_bar_links">
+		<%= link_to "Courses", courses_path %>
+	</div>
+	<div id="profile_link">
+		<% if current_user.present? %>
+			<%= link_to "Profile", user_profile_path(current_user) %>
+			<span>|</span>
+			<%= link_to "Logout", new_user_path %>
+		<% else %>
+			<%= link_to "Login", new_user_path %>
+		<% end %>
+	</div>
+</div>
+
 <h1>Edit profile</h1>
 
 <%= render "form" %>

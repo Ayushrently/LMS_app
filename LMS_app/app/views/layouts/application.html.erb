@@ -11,21 +11,6 @@
   </head>
 
   <body>
-    <% unless controller_name == "users" && action_name == "new" %>
-      <div class="Nav_bar">
-        <div id="Nav_bar_title">LMS App</div>
-        <div id="profile_link">
-          <% if current_user.present? %>
-            <%= link_to "Profile", user_profile_path(current_user) %>
-            <span>|</span>
-            <%= link_to "Logout", logout_path, data: { turbo_method: :delete } %>
-          <% else %>
-            <%= link_to "Login", new_user_path %>
-          <% end %>
-        </div>
-      </div>
-    <% end %>
-
     <% flash.each do |key, message| %>
       <p><%= "#{key.capitalize}: #{message}" %></p>
     <% end %>

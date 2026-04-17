@@ -1,0 +1,5 @@
+<% if context.errors.any? %>
+    <ul class="form_errors">
+      <%= context.errors.full_messages.first %>
+    </ul>
+  <% end %>

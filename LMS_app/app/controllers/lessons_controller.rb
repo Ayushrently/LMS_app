@@ -1,6 +1,7 @@
 class LessonsController < ApplicationController
 
     before_action :get_course
+    before_action :ensure_enrolled!, only: [:show]
 
     def show
         @lesson = Lesson.find(params[:id])
@@ -32,5 +33,10 @@ class LessonsController < ApplicationController
     def lessons_params
         params.require(:lesson).permit(
             :position, :course_id, :title, :content)
+    end
+
+    def ensure_enrolled!
+        enrolled = current_user.present? && Enrollment.exists?(user_id: current_user.id, course_id: @course.id)
+        redirect_to course_path(@course) unless enrolled
     end
 end

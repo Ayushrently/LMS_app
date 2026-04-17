@@ -3,9 +3,11 @@
         Courses
     </div>
 
+    <% if current_user_author? %>
     <div id="Nav_bar_links">
         <%= link_to "Create new course", new_course_path %>
     </div>
+    <%end%>
 
     <div id="profile_link">
         <% if current_user.present? %>
@@ -20,11 +22,16 @@
 
 
 
-<ul> 
+<div class="courses_grid">
     <% @courses.each do |course| %>
-        <li>
-            <%= link_to "#{course.title}", course_path(course.id) %> 
-            <%= button_to "Edit", edit_course_path(course.id), method: :get %>
-        </li>
+        <div class="course_card">
+            <h3><%= link_to "#{course.title}", course_path(course.id) %></h3>
+            <p class="course_meta"><%= "Author: #{course.creator}" %></p>
+            <% if current_user_author? %>
+            <div class="course_card_actions">
+                <%= button_to "Edit", edit_course_path(course.id), method: :get %>
+            </div>
+            <% end %>
+        </div>
     <% end %>
-</ul>
+</div>
