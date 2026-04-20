@@ -22,6 +22,10 @@ body{
      line-height: 1.5;
 }
 
+.flash_stack {
+    max-width: 1100px;
+}
+
 #Nav_bar_title {
      display: inline-block;
      text-align: left;
@@ -40,6 +44,7 @@ body{
  .Nav_bar {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
      gap: 8px;
      padding: 14px 18px;
      border-bottom: 1px solid #dbe3ef;
@@ -49,6 +54,10 @@ body{
 
  #profile_link {
     margin-left: auto;
+     display: flex;
+     align-items: center;
+     gap: 8px;
+     flex-wrap: wrap;
      font-size: 16px;
      font-weight: 600;
     text-decoration: none;
@@ -59,11 +68,22 @@ body{
  #Nav_bar_links a {
      color: #0f172a;
      text-decoration: none;
+     border: 1px solid #dbe3ef;
+     border-radius: 999px;
+     padding: 6px 12px;
+     background: #f8fafc;
+     display: inline-block;
  }
 
  #profile_link a:hover,
  #Nav_bar_links a:hover {
-     text-decoration: underline;
+     text-decoration: none;
+     border-color: #c9d4e5;
+     background: #eef2f7;
+ }
+
+ #profile_link span {
+     color: #94a3b8;
  }
 
  h1 {
@@ -93,6 +113,47 @@ body{
      padding: 16px;
      max-width: 700px;
      margin-top: 12px;
+ }
+
+ .auth_page {
+     min-height: calc(100vh - 120px);
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     padding: 24px 18px;
+ }
+
+ .auth_card {
+     width: min(100%, 480px);
+     background: #ffffff;
+     border: 1px solid #dbe3ef;
+     border-radius: 14px;
+     box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+     padding: 22px;
+ }
+
+ .auth_title {
+     margin: 0 0 6px 0;
+     font-size: 28px;
+     color: #0f172a;
+ }
+
+ .auth_subtitle {
+     margin: 0 0 16px 0;
+     color: #64748b;
+ }
+
+ .auth_actions {
+     margin-top: 14px;
+ }
+
+ .auth_links {
+     margin-top: 12px;
+ }
+
+ .auth_links a {
+     color: #0f172a;
+     font-weight: 600;
  }
 
  .app_form div {
@@ -143,6 +204,7 @@ body{
 
  input[type="text"],
  input[type="email"],
+input[type="password"],
  textarea,
  select {
      width: 100%;
@@ -216,6 +278,14 @@ body{
      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.06);
      padding: 14px;
  }
+
+.auth_page p,
+.auth_page form,
+.auth_page div,
+.auth_page ul {
+    margin-left: 0;
+    margin-right: 0;
+}
 
  .course_card h3 {
      margin: 0 0 12px 0;
@@ -325,4 +395,85 @@ body{
  .comment_actions .btn-link {
      padding: 4px 8px;
      font-size: 12px;
+ }
+
+ @media (max-width: 768px) {
+     .Nav_bar {
+         gap: 10px;
+         align-items: flex-start;
+     }
+
+     #Nav_bar_title {
+         width: 100%;
+         font-size: 24px;
+     }
+
+     #Nav_bar_links {
+         margin-left: 0;
+     }
+
+     #profile_link {
+         width: 100%;
+         margin-left: 0;
+         margin-top: 4px;
+     }
+
+     .courses_grid {
+         margin: 14px;
+     }
+ }
+
+/* Bootstrap Integration for Profile Form */
+.form-label {
+     font-weight: 600;
+     color: #1f2937;
+     margin-bottom: 8px;
+ }
+
+ .form-control,
+ .form-select {
+     border: 1px solid #c9d4e5;
+     border-radius: 8px;
+     padding: 10px 12px;
+     font-size: 15px;
+     background: #ffffff;
+     color: #1f2937;
+ }
+
+ .form-control:focus,
+ .form-select:focus {
+     border-color: #0f172a;
+     box-shadow: 0 0 0 0.2rem rgba(15, 23, 42, 0.25);
+ }
+
+ .form-control::placeholder {
+     color: #94a3b8;
+ }
+
+ .btn-primary {
+     background-color: #0f172a;
+     border-color: #0f172a;
+     font-weight: 600;
+ }
+
+ .btn-primary:hover {
+     background-color: #1e293b;
+     border-color: #1e293b;
+ }
+
+ .alert {
+     border-radius: 10px;
+     padding: 14px;
+ }
+
+ .alert-info {
+     background-color: #ecf0ff;
+     border-color: #b3d9ff;
+     color: #0f172a;
+ }
+
+ .alert-danger {
+     background-color: #fef2f2;
+     border-color: #fecaca;
+     color: #991b1b;
  }

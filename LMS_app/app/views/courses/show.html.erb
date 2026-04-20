@@ -7,9 +7,9 @@
         <% if current_user.present? %>
             <%= link_to "Profile", user_profile_path(current_user) %>
             <span>|</span>
-            <%= link_to "Logout", new_user_path %>
+            <%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete } %>
         <% else %>
-            <%= link_to "Login", new_user_path %>
+            <%= link_to "Sign in", new_user_session_path %>
         <% end %>
     </div>
 </div>
@@ -19,13 +19,14 @@
 <div class="content_panel">
     <p><%= "Author: #{@course.creator}" %></p>
     <% if current_user.present? %>
-        <% if @enrolled %>
-            <p>You are enrolled in this course.</p>
+        <% if @enrollment %>
+            <p>You are enrolled in this course, click below to un-enroll.</p>
+            <%= button_to "Un-enroll", course_enrollment_path(@course,@enrollment), method: :delete %>
         <% else %>
             <%= button_to "Enroll", course_enrollments_path(@course), method: :post %>
         <% end %>
     <% else %>
-        <%= link_to "Login to enroll", new_user_path %>
+        <%= link_to "Sign in to enroll", new_user_session_path %>
     <% end %>
 </div>
 

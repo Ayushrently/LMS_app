@@ -1,32 +1,34 @@
 class ApplicationController < ActionController::Base
-  helper_method :current_user, :current_user_author?, :current_user_author_for?
-
-  CURRENT_USER_FILE = Rails.root.join("tmp", "current_user_id.txt")
-
-  def current_user
-    id = File.exist?(CURRENT_USER_FILE) ? File.read(CURRENT_USER_FILE).strip : nil
-    return nil if id.blank?
-
-    @current_user ||= User.find_by(id: id)
-  end
-
-  def set_current_user(user)
-    File.write(CURRENT_USER_FILE, user.id.to_s)
-    @current_user = user
-  end
-
-  def clear_current_user
-    File.delete(CURRENT_USER_FILE) if File.exist?(CURRENT_USER_FILE)
-    @current_user = nil
-  end
+  helper_method :current_user_author?, :current_user_author_for?
+  before_action :authenticate_user!, unless: :devise_controller?
+  before_action :ensure_profile_completed, if: :profile_completion_required?
 
   def current_user_author?
-    current_user.present? && current_user.authored_courses.exists?
+    user_signed_in? && current_user.authored_courses.exists?
   end
 
   def current_user_author_for?(course)
     return false unless current_user.present? && course.present?
 
     course.authors.exists?(id: current_user.id)
+  end
+
+  private
+
+  def profile_completion_required?
+    user_signed_in? && !devise_controller?
+  end
+
+  def ensure_profile_completed
+    return if current_user.profile.present?
+    return if profile_completion_route?
+
+    redirect_to new_user_profile_path(current_user)
+  end
+
+  def profile_completion_route?
+    controller_name == "profiles" &&
+      %w[new create edit update].include?(action_name) &&
+      params[:user_id].to_s == current_user.id.to_s
   end
 end

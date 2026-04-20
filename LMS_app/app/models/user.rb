@@ -1,6 +1,9 @@
 class User < ApplicationRecord
+  # Include default devise modules. Others available are:
+  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
+  devise :database_authenticatable, :registerable,
+         :recoverable, :rememberable, :validatable
     enum role:{ student:"student", author:"author" }, _default: :student, _prefix: true
-    validates :email, presence: true, format: { with: /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i}, uniqueness: { case_sensitive: false }
     validates :role, inclusion: { in: User.roles.keys }
 
 

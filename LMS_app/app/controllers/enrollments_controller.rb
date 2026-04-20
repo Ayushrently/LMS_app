@@ -1,6 +1,5 @@
 class EnrollmentsController < ApplicationController
   before_action :set_course
-  before_action :redirect
 
   def create
 
@@ -14,6 +13,12 @@ class EnrollmentsController < ApplicationController
   end
 
   def destroy
+    enrollment = @course.enrollments.find_by(user_id: current_user.id)
+    if enrollment&.destroy
+      redirect_to course_path(@course)
+    else
+      redirect_to course_path(@course)
+    end
   end
 
   def hello
@@ -21,10 +26,6 @@ class EnrollmentsController < ApplicationController
   end
 
   private
-
-  def redirect
-    return redirect_to new_user_path unless current_user.present?
-  end
 
   def set_course
     @course = Course.find_by(id:params[:course_id])

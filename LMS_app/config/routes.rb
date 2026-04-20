@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  devise_for :users
   get 'test/new'
   get 'test/edit'
   get 'test/throw'
@@ -6,10 +7,8 @@ Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Defines the root path route ("/")
-  root "users#new"
+  root "courses#index"
   get "workspace", to: "courses#workspace"
-
-  delete "logout", to: "users#logout", as: :logout
 
   resources :courses do 
     member do
@@ -22,7 +21,7 @@ Rails.application.routes.draw do
     resources :enrollments, only: [:create, :destroy]
   end
 
-  resources :users, only: [:new, :create, :show] do
+  resources :users, only: [:show] do
     resource :profile, only: [:show, :new, :create, :edit, :update]
   end
 

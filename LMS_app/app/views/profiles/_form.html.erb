@@ -1,39 +1,46 @@
-<%= form_with model: [@user, @profile], url: user_profile_path(@user), html: { class: "app_form" } do |form| %>
+<%= form_with model: [@user, @profile], url: user_profile_path(@user), html: { class: "app_form needs-validation" } do |form| %>
   <%= render "errors/error", context:@profile %>
 
   <% if @profile.subscription&.errors&.any? %>
-    <ul class="form_errors">
-      <% @profile.subscription.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-    </ul>
-  <% end %>
-
-  <div>
-    <%= form.label :name, "Name" %>
-    <%= form.text_field :name %>
-  </div>
-
-  <div>
-    <%= form.label :username, "Username" %>
-    <%= form.text_field :username %>
-  </div>
-
-  <div>
-    <%= form.label :bio, "Bio" %>
-    <%= form.text_area :bio %>
-  </div>
-
-  <h2 class="form_section_title">Subscription</h2>
-
-  <%= form.fields_for :subscription do |sub_fields| %>
-    <div>
-      <%= sub_fields.label :plan_name, "Plan name" %>
-      <%= sub_fields.select :plan_name, Subscription.plan_names.keys.map { |plan_name| [plan_name.titleize, plan_name] } %>
+    <div class="alert alert-danger alert-sm mb-3" role="alert">
+      <div class="fw-bold mb-2">Subscription Error</div>
+      <ul class="mb-0 ps-4">
+        <% @profile.subscription.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
     </div>
   <% end %>
 
-  <div class="form_actions">
-    <%= form.submit %>
+  <div class="mb-4">
+    <label for="profile_name" class="form-label">Name <span class="text-danger">*</span></label>
+    <%= form.text_field :name, class: "form-control", id: "profile_name", required: true %>
+  </div>
+
+  <div class="mb-4">
+    <label for="profile_username" class="form-label">Username <span class="text-danger">*</span></label>
+    <%= form.text_field :username, class: "form-control", id: "profile_username", required: true %>
+  </div>
+
+  <div class="mb-4">
+    <label for="profile_bio" class="form-label">Bio <span class="text-danger">*</span></label>
+    <%= form.text_area :bio, class: "form-control", id: "profile_bio", rows: 4, required: true %>
+    <small class="form-text text-muted d-block mt-1">Tell us about yourself (helps with community)</small>
+  </div>
+
+  <hr class="my-4">
+
+  <div class="mb-4">
+    <h5 class="fw-bold mb-3">Subscription Plan</h5>
+    <%= form.fields_for :subscription do |sub_fields| %>
+      <div class="mb-3">
+        <label for="profile_subscription_plan_name" class="form-label">Select Your Plan <span class="text-danger">*</span></label>
+        <%= sub_fields.select :plan_name, Subscription.plan_names.keys.map { |plan_name| [plan_name.titleize, plan_name] }, { prompt: "Choose a plan..." }, { class: "form-select", id: "profile_subscription_plan_name", required: true } %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="form_actions d-grid gap-2">
+    <%= form.submit "Complete Profile", class: "btn btn-primary btn-lg" %>
   </div>
 <% end %>
