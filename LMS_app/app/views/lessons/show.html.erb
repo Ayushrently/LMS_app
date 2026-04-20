@@ -18,11 +18,6 @@
 </div>
 
 <h1>Lesson: <%= @lesson.title %></h1>
-<% if current_user_author? %>
-<div class="content_panel">
-    <%= button_to "Edit Lesson", edit_course_lesson_path(@course, @lesson), method: :get %>
-</div>
-<% end %>
 <div class="content_panel">
     <h2>Content</h2>
     <p><%= @lesson.content %></p>

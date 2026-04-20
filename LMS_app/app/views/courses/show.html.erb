@@ -1,10 +1,5 @@
 <div class="Nav_bar">
     <div id="Nav_bar_title">Course</div>
-    <% if current_user_author? %>
-    <div id="Nav_bar_links">
-        <%= link_to "Add Lesson", new_course_lesson_path(@course) %>
-    </div>
-    <% end %>
     <div id="Nav_bar_links">
         <%= link_to "Back to Courses", courses_path %>
     </div>
@@ -37,11 +32,14 @@
 <div class="content_panel">
     <h2>Lessons</h2>
     <ul>
-        <% lessons = Lesson.where(course_id: @course.id).order(:position).pluck(:title,:id) %>
+        <% lessons = Lesson.where(course_id: @course.id).order(:created_at, :id).pluck(:title,:id) %>
         <% lessons.each do |title,id| %>
             <li> <a href=<%=course_lesson_path(@course.id, id)%>% ><%= title %></a> </li>
         <% end %>
     </ul>
+    <% if lessons.empty? %>
+        <p>No lessons available for this course.</p>
+    <% end %>
 </div>
 
 <%= render "comments/comments",

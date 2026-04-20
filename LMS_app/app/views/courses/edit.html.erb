@@ -21,7 +21,21 @@
 </div>
 
 <div class="content_panel">
-  <p><%= "Author: #{@course.creator}" %></p>
+  <p class="course_meta"><%= "Creator: #{@course.creator}" %></p>
+  <% if flash[:authors_alert].present? %>
+    <p class="authors_flash authors_flash_alert"><%= flash[:authors_alert] %></p>
+  <% elsif flash[:authors_notice].present? %>
+    <p class="authors_flash authors_flash_notice"><%= flash[:authors_notice] %></p>
+  <% end %>
+  <%= form_with url: update_authors_course_path(@course), method: :patch, html: { class: "authors_form" } do |form| %>
+    <div class="authors_form_row">
+      <%= form.label :authors_csv, "Authors (CSV usernames)" %>
+      <%= form.text_field :authors_csv, value: @authors_csv, id: "authors_csv_input", placeholder: "creator_username,another_author" %>
+    </div>
+    <div class="authors_form_actions">
+      <%= form.submit "Update Authors" %>
+    </div>
+  <% end %>
 </div>
 
 <%= form_with model: @course, html: { class: "app_form" } do |form| %>
@@ -50,6 +64,15 @@
     <%= form.label :status_published, "Published" %>
     <%= form.radio_button :status, "draft" %>
     <%= form.label :status_draft, "Draft" %>
+  </div>
+
+  <div>
+    <label>Lessons</label>
+    <ol>
+      <% @course.lessons.order(:created_at, :id).each do |lesson| %>
+        <li><%= link_to lesson.title, edit_course_lesson_path(@course, lesson) %></li>
+      <% end %>
+    </ol>
   </div>
 
   <div>

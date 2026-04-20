@@ -10,11 +10,6 @@
   </div>
 
   <div>
-    <%= form.label :role, "Role" %>
-    <%= form.select :role, User.roles.keys.map { |role| [role.titleize, role] } %>
-  </div>
-
-  <div>
     <%= form.submit "Continue" %>
   </div>
 <% end %>

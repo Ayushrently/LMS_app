@@ -3,11 +3,15 @@
         Courses
     </div>
 
-    <% if current_user_author? %>
     <div id="Nav_bar_links">
         <%= link_to "Create new course", new_course_path %>
     </div>
-    <%end%>
+
+    <% if current_user_author? %>
+    <div id="Nav_bar_links">
+        <%= link_to "Workspace", workspace_path %>
+    </div>
+    <% end %>
 
     <div id="profile_link">
         <% if current_user.present? %>
@@ -22,16 +26,34 @@
 
 
 
-<div class="courses_grid">
-    <% @courses.each do |course| %>
-        <div class="course_card">
-            <h3><%= link_to "#{course.title}", course_path(course.id) %></h3>
-            <p class="course_meta"><%= "Author: #{course.creator}" %></p>
-            <% if current_user_author? %>
-            <div class="course_card_actions">
-                <%= button_to "Edit", edit_course_path(course.id), method: :get %>
+<div class="content_panel">
+    <h2>Enrolled Courses</h2>
+    <% if @enrolled_courses.any? %>
+    <div class="courses_grid">
+        <% @enrolled_courses.each do |course| %>
+            <div class="course_card">
+                <h3><%= link_to "#{course.title}", course_path(course.id) %></h3>
+                <p class="course_meta"><%= "Creator: #{course.creator}" %></p>
             </div>
-            <% end %>
-        </div>
+        <% end %>
+    </div>
+    <% else %>
+    <p>No courses found</p>
+    <% end %>
+</div>
+
+<div class="content_panel">
+    <h2>Explore Other Courses</h2>
+    <% if @other_courses.any? %>
+    <div class="courses_grid">
+        <% @other_courses.each do |course| %>
+            <div class="course_card">
+                <h3><%= link_to "#{course.title}", course_path(course.id) %></h3>
+                <p class="course_meta"><%= "Creator: #{course.creator}" %></p>
+            </div>
+        <% end %>
+    </div>
+    <% else %>
+    <p>No courses found</p>
     <% end %>
 </div>

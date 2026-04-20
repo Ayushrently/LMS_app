@@ -1,5 +1,5 @@
 class ApplicationController < ActionController::Base
-  helper_method :current_user, :current_user_author?
+  helper_method :current_user, :current_user_author?, :current_user_author_for?
 
   CURRENT_USER_FILE = Rails.root.join("tmp", "current_user_id.txt")
 
@@ -21,6 +21,12 @@ class ApplicationController < ActionController::Base
   end
 
   def current_user_author?
-    current_user&.author?
+    current_user.present? && current_user.authored_courses.exists?
+  end
+
+  def current_user_author_for?(course)
+    return false unless current_user.present? && course.present?
+
+    course.authors.exists?(id: current_user.id)
   end
 end

@@ -16,6 +16,10 @@ class EnrollmentsController < ApplicationController
   def destroy
   end
 
+  def hello
+    render plain: "Hello from EnrollmentsController!"
+  end
+
   private
 
   def redirect
@@ -23,6 +27,6 @@ class EnrollmentsController < ApplicationController
   end
 
   def set_course
-    @course = Course.find(params[:course_id])
+    @course = Course.find_by(id:params[:course_id])
   end
 end
