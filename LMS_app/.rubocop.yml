@@ -1,0 +1,16 @@
+require:
+  - rubocop-rails
+  - rubocop-performance
+
+AllCops:
+  NewCops: enable
+  # This prevents RuboCop from trying to "fix" auto-generated Rails files
+  Exclude:
+    - 'bin/**/*'
+    - 'db/schema.rb'
+    - 'db/migrate/*'
+    - 'config/environments/*'
+    - 'node_modules/**/*'
+    - 'vendor/**/*'
+
+# You can add custom rule overrides here later if you hate specific rules

@@ -1,0 +1,280 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS (and SCSS, if configured) file within this directory, lib/assets/stylesheets, or any plugin's
+ * vendor/assets/stylesheets directory can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the bottom of the
+ * compiled file so the styles you add here take precedence over styles defined in any other CSS
+ * files in this directory. Styles in this file should be added after the last require_* statement.
+ * It is generally better to create a new file per style scope.
+ *
+ *= require_tree .
+ *= require_self
+ */
+body{
+     padding: 0;
+     margin: 0;
+     background: #f4f6fb;
+     color: #1f2937;
+     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+     line-height: 1.5;
+}
+
+#Nav_bar_title {
+     display: inline-block;
+     text-align: left;
+     font-weight: 700;
+     font-size: 28px;
+     color: #0f172a;
+}
+
+#Nav_bar_links {
+    display: inline-block;
+     margin-left: 18px;
+    text-align: left;
+     font-size: 16px;
+}
+
+ .Nav_bar {
+    display: flex;
+    align-items: center;
+     gap: 8px;
+     padding: 14px 18px;
+     border-bottom: 1px solid #dbe3ef;
+     background: #ffffff;
+     box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+ }
+
+ #profile_link {
+    margin-left: auto;
+     font-size: 16px;
+     font-weight: 600;
+    text-decoration: none;
+     color: #0f172a;
+ }
+
+ #profile_link a,
+ #Nav_bar_links a {
+     color: #0f172a;
+     text-decoration: none;
+ }
+
+ #profile_link a:hover,
+ #Nav_bar_links a:hover {
+     text-decoration: underline;
+ }
+
+ h1 {
+     margin: 20px 18px 12px;
+     font-size: 28px;
+     color: #111827;
+ }
+
+ h2 {
+     margin-top: 0;
+     color: #1f2937;
+ }
+
+ p,
+ ul,
+ form,
+ div {
+     margin-left: 18px;
+     margin-right: 18px;
+ }
+
+ .app_form {
+     background: #ffffff;
+     border: 1px solid #dbe3ef;
+     border-radius: 10px;
+     box-shadow: 0 3px 10px rgba(15, 23, 42, 0.06);
+     padding: 16px;
+     max-width: 700px;
+     margin-top: 12px;
+ }
+
+ .app_form div {
+     margin: 0 0 14px 0;
+ }
+
+ .horizontal-group {
+    border: none;
+    padding: 0;
+    margin-bottom: 15px;
+}
+
+.horizontal-group label {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 20px; 
+    cursor: pointer;
+}
+
+ .form_section_title {
+     margin-top: 8px;
+     margin-bottom: 10px;
+ }
+
+ .form_errors {
+     background: #fef2f2;
+     border: 1px solid #fecaca;
+     color: #991b1b;
+     border-radius: 8px;
+     padding: 10px 14px;
+     margin: 0 0 14px 0;
+ }
+
+ .form_errors li {
+     margin: 4px 0;
+ }
+
+ .form_actions {
+     margin-top: 16px;
+ }
+
+ label {
+     display: block;
+     margin-bottom: 6px;
+     font-weight: 600;
+     color: #1f2937;
+ }
+
+ input[type="text"],
+ input[type="email"],
+ textarea,
+ select {
+     width: 100%;
+     max-width: 100%;
+     box-sizing: border-box;
+     border: 1px solid #c9d4e5;
+     border-radius: 8px;
+     padding: 10px 12px;
+     font-size: 15px;
+     background: #ffffff;
+ }
+
+ textarea {
+     min-height: 110px;
+     resize: vertical;
+ }
+
+ input[type="radio"] {
+     margin-right: 6px;
+ }
+
+ input[type="submit"],
+ button,
+ .button_to input[type="submit"] {
+     border: 1px solid #0f172a;
+     border-radius: 8px;
+     background: #0f172a;
+     color: #ffffff;
+     font-weight: 600;
+     padding: 8px 14px;
+     cursor: pointer;
+ }
+
+ input[type="submit"]:hover,
+ button:hover,
+ .button_to input[type="submit"]:hover {
+     background: #1e293b;
+ }
+
+ .courses_grid {
+     display: grid;
+     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+     gap: 14px;
+     margin: 18px;
+ }
+
+.btn-link {
+    display: inline-block;    
+    text-decoration: none;     
+    border: 1px solid #0f172a;
+    border-radius: 8px;
+    background: #0f172a;
+    color: #ffffff;
+    font-weight: 600;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-size: 14px;          
+    line-height: 1;            
+}
+
+.btn-link:hover {
+    background: #1e293b;
+    color: #ffffff;      
+    text-decoration: none;
+}
+
+ .course_card {
+     background: #ffffff;
+     border: 1px solid #dbe3ef;
+     border-radius: 10px;
+     box-shadow: 0 3px 10px rgba(15, 23, 42, 0.06);
+     padding: 14px;
+ }
+
+ .course_card h3 {
+     margin: 0 0 12px 0;
+     font-size: 18px;
+ }
+
+ .course_card h3 a {
+     color: #0f172a;
+     text-decoration: none;
+ }
+
+ .course_card h3 a:hover {
+     text-decoration: underline;
+ }
+
+ .course_meta {
+     margin: 0 0 12px 0;
+     color: #475569;
+     font-size: 14px;
+ }
+
+ .course_card_actions {
+     display: flex;
+     gap: 10px;
+ }
+
+ .course_card_actions .button_to,
+ .course_card_actions a {
+     margin: 0;
+ }
+
+ .content_panel {
+     background: #ffffff;
+     border: 1px solid #dbe3ef;
+     border-radius: 10px;
+     box-shadow: 0 3px 10px rgba(15, 23, 42, 0.06);
+     padding: 16px;
+     margin: 16px 18px;
+ }
+
+ .comments_panel {
+     background: #ffffff;
+     border: 1px solid #dbe3ef;
+     border-radius: 10px;
+     box-shadow: 0 3px 10px rgba(15, 23, 42, 0.06);
+     padding: 16px;
+     margin: 16px 18px;
+ }
+
+ .comments_panel ul {
+     margin-left: 18px;
+     margin-right: 0;
+ }
+
+ .flash_message {
+     background: #eef2ff;
+     border: 1px solid #c7d2fe;
+     color: #1e1b4b;
+     border-radius: 8px;
+     padding: 8px 10px;
+     margin: 10px 18px;
+ }

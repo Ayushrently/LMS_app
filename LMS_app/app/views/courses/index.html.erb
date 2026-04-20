@@ -1,0 +1,37 @@
+<div class="Nav_bar" > 
+    <div id="Nav_bar_title">
+        Courses
+    </div>
+
+    <% if current_user_author? %>
+    <div id="Nav_bar_links">
+        <%= link_to "Create new course", new_course_path %>
+    </div>
+    <%end%>
+
+    <div id="profile_link">
+        <% if current_user.present? %>
+        <%= link_to "View Profile", user_profile_path(current_user) %>
+        <span>|</span>
+        <%= link_to "Logout", new_user_path %>
+        <% else %>
+        <%= link_to "Login", new_user_path %>
+        <% end %>
+    </div>
+</div>
+
+
+
+<div class="courses_grid">
+    <% @courses.each do |course| %>
+        <div class="course_card">
+            <h3><%= link_to "#{course.title}", course_path(course.id) %></h3>
+            <p class="course_meta"><%= "Author: #{course.creator}" %></p>
+            <% if current_user_author? %>
+            <div class="course_card_actions">
+                <%= button_to "Edit", edit_course_path(course.id), method: :get %>
+            </div>
+            <% end %>
+        </div>
+    <% end %>
+</div>

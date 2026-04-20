@@ -1,0 +1,50 @@
+<div class="Nav_bar">
+    <div id="Nav_bar_title">Course</div>
+    <% if current_user_author? %>
+    <div id="Nav_bar_links">
+        <%= link_to "Add Lesson", new_course_lesson_path(@course) %>
+    </div>
+    <% end %>
+    <div id="Nav_bar_links">
+        <%= link_to "Back to Courses", courses_path %>
+    </div>
+    <div id="profile_link">
+        <% if current_user.present? %>
+            <%= link_to "Profile", user_profile_path(current_user) %>
+            <span>|</span>
+            <%= link_to "Logout", new_user_path %>
+        <% else %>
+            <%= link_to "Login", new_user_path %>
+        <% end %>
+    </div>
+</div>
+
+<h1>Course : <%= @course.title %> </h1>
+
+<div class="content_panel">
+    <p><%= "Author: #{@course.creator}" %></p>
+    <% if current_user.present? %>
+        <% if @enrolled %>
+            <p>You are enrolled in this course.</p>
+        <% else %>
+            <%= button_to "Enroll", course_enrollments_path(@course), method: :post %>
+        <% end %>
+    <% else %>
+        <%= link_to "Login to enroll", new_user_path %>
+    <% end %>
+</div>
+
+<div class="content_panel">
+    <h2>Lessons</h2>
+    <ul>
+        <% lessons = Lesson.where(course_id: @course.id).order(:position).pluck(:title,:id) %>
+        <% lessons.each do |title,id| %>
+            <li> <a href=<%=course_lesson_path(@course.id, id)%>% ><%= title %></a> </li>
+        <% end %>
+    </ul>
+</div>
+
+<%= render "comments/comments",
+      comments: @comments,
+      new_comment: @new_comment,
+      comment_path: course_comments_path(@course) %>

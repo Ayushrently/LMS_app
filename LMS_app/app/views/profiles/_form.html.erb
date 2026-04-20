@@ -1,0 +1,39 @@
+<%= form_with model: [@user, @profile], url: user_profile_path(@user), html: { class: "app_form" } do |form| %>
+  <%= render "errors/error", context:@profile %>
+
+  <% if @profile.subscription&.errors&.any? %>
+    <ul class="form_errors">
+      <% @profile.subscription.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <div>
+    <%= form.label :name, "Name" %>
+    <%= form.text_field :name %>
+  </div>
+
+  <div>
+    <%= form.label :username, "Username" %>
+    <%= form.text_field :username %>
+  </div>
+
+  <div>
+    <%= form.label :bio, "Bio" %>
+    <%= form.text_area :bio %>
+  </div>
+
+  <h2 class="form_section_title">Subscription</h2>
+
+  <%= form.fields_for :subscription do |sub_fields| %>
+    <div>
+      <%= sub_fields.label :plan_name, "Plan name" %>
+      <%= sub_fields.select :plan_name, Subscription.plan_names.keys.map { |plan_name| [plan_name.titleize, plan_name] } %>
+    </div>
+  <% end %>
+
+  <div class="form_actions">
+    <%= form.submit %>
+  </div>
+<% end %>

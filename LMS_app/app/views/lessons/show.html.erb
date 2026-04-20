@@ -1,0 +1,33 @@
+<div class="Nav_bar">
+    <div id="Nav_bar_title">Lesson</div>
+    <div id="Nav_bar_links">
+        <%= link_to "Back to Course", course_path(@lesson.course_id) %>
+    </div>
+    <div id="Nav_bar_links">
+        <%= link_to "Courses", courses_path %>
+    </div>
+    <div id="profile_link">
+        <% if current_user.present? %>
+            <%= link_to "Profile", user_profile_path(current_user) %>
+            <span>|</span>
+            <%= link_to "Logout", new_user_path %>
+        <% else %>
+            <%= link_to "Login", new_user_path %>
+        <% end %>
+    </div>
+</div>
+
+<h1>Lesson: <%= @lesson.title %></h1>
+<% if current_user_author? %>
+<div class="content_panel">
+    <%= button_to "Edit Lesson", edit_course_lesson_path(@course, @lesson), method: :get %>
+</div>
+<% end %>
+<div class="content_panel">
+    <h2>Content</h2>
+    <p><%= @lesson.content %></p>
+</div>
+<%= render "comments/comments",
+      comments: @comments,
+      new_comment: @new_comment,
+      comment_path: course_lesson_comments_path(@course, @lesson) %>

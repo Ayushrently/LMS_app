@@ -1,0 +1,20 @@
+<div class="Nav_bar">
+  <div id="Nav_bar_title">Login</div>
+</div>
+
+<%= form_with model: @user, html: { class: "app_form" } do |form| %>
+  <%= render "errors/error", context:@user %>
+  <div>
+    <%= form.label :email, "Email" %>
+    <%= form.email_field :email %>
+  </div>
+
+  <div>
+    <%= form.label :role, "Role" %>
+    <%= form.select :role, User.roles.keys.map { |role| [role.titleize, role] } %>
+  </div>
+
+  <div>
+    <%= form.submit "Continue" %>
+  </div>
+<% end %>

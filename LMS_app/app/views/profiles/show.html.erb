@@ -1,0 +1,30 @@
+<div class="Nav_bar">
+  <div id="Nav_bar_title">Profile</div>
+  <div id="Nav_bar_links">
+    <%= link_to "Edit profile", edit_user_profile_path(@user) %>
+  </div>
+  <div id="Nav_bar_links">
+    <%= link_to "Courses", courses_path %>
+  </div>
+  <div id="profile_link">
+    <% if current_user.present? %>
+      <%= link_to "Profile", user_profile_path(current_user) %>
+      <span>|</span>
+      <%= link_to "Logout", new_user_path %>
+    <% else %>
+      <%= link_to "Login", new_user_path %>
+    <% end %>
+  </div>
+</div>
+
+
+<div class="content_panel">
+  <p><%= "Name: #{@profile.name}" %></p>
+  <p><%= "Username: #{@profile.username}" %></p>
+  <p><%= "Bio: #{@profile.bio}" %></p>
+
+  <% if @profile.subscription.present? %>
+    <h2>Subscription</h2>
+    <p><%= "Plan name: #{@profile.subscription.plan_name}" %></p>
+  <% end %>
+</div>
