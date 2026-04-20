@@ -1,0 +1,53 @@
+<div class="Nav_bar">
+  <div id="Nav_bar_title">Workspace</div>
+  <div id="Nav_bar_links">
+    <%= link_to "Back to Courses", courses_path %>
+  </div>
+  <div id="profile_link">
+    <% if current_user.present? %>
+      <%= link_to "Profile", user_profile_path(current_user) %>
+      <span>|</span>
+      <%= link_to "Logout", new_user_path %>
+    <% else %>
+      <%= link_to "Login", new_user_path %>
+    <% end %>
+  </div>
+</div>
+
+<h1>Author Workspace</h1>
+
+<div class="content_panel">
+  <h2>Drafts</h2>
+  <% if @draft_courses.any? %>
+    <div class="courses_grid">
+      <% @draft_courses.each do |course| %>
+        <div class="course_card">
+          <h3><%= link_to course.title, edit_course_path(course) %></h3>
+          <div class="course_card_actions">
+            <%= button_to "Edit", edit_course_path(course), method: :get %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p>No draft courses.</p>
+  <% end %>
+</div>
+
+<div class="content_panel">
+  <h2>Published</h2>
+  <% if @published_courses.any? %>
+    <div class="courses_grid">
+      <% @published_courses.each do |course| %>
+        <div class="course_card">
+          <h3><%= link_to course.title, edit_course_path(course) %></h3>
+          <div class="course_card_actions">
+            <%= button_to "Edit", edit_course_path(course), method: :get %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p>No published courses.</p>
+  <% end %>
+</div>

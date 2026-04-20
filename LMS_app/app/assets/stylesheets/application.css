@@ -256,6 +256,36 @@ body{
      margin: 16px 18px;
  }
 
+ .authors_form {
+     margin: 0;
+ }
+
+ .authors_form_row {
+     margin: 10px 0 0 0;
+ }
+
+ .authors_form_actions {
+     margin: 12px 0 0 0;
+ }
+
+ .authors_flash {
+     border-radius: 8px;
+     padding: 8px 10px;
+     margin: 8px 0 12px 0;
+ }
+
+ .authors_flash_alert {
+     background: #fef2f2;
+     border: 1px solid #fecaca;
+     color: #991b1b;
+ }
+
+ .authors_flash_notice {
+     background: #eef2ff;
+     border: 1px solid #c7d2fe;
+     color: #1e1b4b;
+ }
+
  .comments_panel {
      background: #ffffff;
      border: 1px solid #dbe3ef;
@@ -277,4 +307,22 @@ body{
      border-radius: 8px;
      padding: 8px 10px;
      margin: 10px 18px;
+ }
+
+ .comment_item {
+     display: flex;
+     justify-content: space-between;
+     align-items: flex-start;
+     margin-bottom: 8px;
+ }
+
+ .comment_actions {
+     display: flex;
+     gap: 8px;
+     margin-left: 12px;
+ }
+
+ .comment_actions .btn-link {
+     padding: 4px 8px;
+     font-size: 12px;
  }

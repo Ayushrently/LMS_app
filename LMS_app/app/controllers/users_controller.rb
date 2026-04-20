@@ -8,7 +8,6 @@ class UsersController < ApplicationController
   def create
     normalized_email = user_params[:email].to_s.downcase.strip
     @user = User.find_or_initialize_by(email: normalized_email)
-    @user.role = user_params[:role]
 
     if @user.save
       set_current_user(@user)
@@ -34,7 +33,7 @@ class UsersController < ApplicationController
   private
 
   def set_user
-    @user = User.find(params[:id])
+    @user = User.find_by(id:params[:id])
   end
 
   def user_params

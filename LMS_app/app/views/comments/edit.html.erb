@@ -1,0 +1,41 @@
+<div class="Nav_bar">
+  <div id="Nav_bar_title">Edit Comment</div>
+  <div id="Nav_bar_links">
+    <%= link_to "Back", request.referrer || root_path %>
+  </div>
+  <div id="profile_link">
+    <% if current_user.present? %>
+      <%= link_to "Profile", user_profile_path(current_user) %>
+      <span>|</span>
+      <%= link_to "Logout", new_user_path %>
+    <% else %>
+      <%= link_to "Login", new_user_path %>
+    <% end %>
+  </div>
+</div>
+
+<div class="content_panel">
+  <h1>Edit Comment</h1>
+  <% comment_url = "" %>
+  <% if @comment.commentable_type == "Lesson" %>
+    <% course = @comment.commentable.course %>
+    <% lesson = @comment.commentable %>
+    <% comment_url = course_lesson_comment_path(course, lesson, @comment) %>
+  <% else %>
+    <% course = @comment.commentable %>
+    <% comment_url = course_comment_path(course, @comment) %>
+  <% end %>
+    <%= form_with model: @comment, url: comment_url, method: :patch, html: { class: "app_form" } do |form| %>
+
+    <%= render "errors/error", context: @comment %>
+    <div>
+      <%= form.label :body, "Comment" %>
+      <%= form.text_area :body %>
+    </div>
+
+    <div>
+      <%= form.submit "Update Comment" %>
+      <%= link_to "Cancel", request.referrer || course_path, class: "btn-link" %>
+    </div>
+    <% end %>
+</div>

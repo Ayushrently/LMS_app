@@ -5,7 +5,20 @@
   <ul>
     <% comments.each do |comment| %>
       <li>
-        <strong><%= comment.user&.profile&.username || comment.user&.profile&.name || comment.user.email %></strong>: <%= comment.body %>
+        <div class="comment_item">
+          <strong><%= comment.user&.profile&.username || comment.user&.profile&.name || comment.user.email %></strong>: <%= comment.body %>
+          <% if current_user.present? && current_user.id == comment.user_id %>
+            <div class="comment_actions">
+              <% if comment.commentable_type == "Lesson" %>
+                <%= link_to "Edit", edit_course_lesson_comment_path(comment.commentable.course, comment.commentable, comment), class: "btn-link" %>
+                <%= link_to "Delete", course_lesson_comment_path(comment.commentable.course, comment.commentable, comment), data: { turbo_method: :delete, turbo_confirm: "Delete this comment?" }, class: "btn-link" %>
+              <% else %>
+                <%= link_to "Edit", edit_course_comment_path(comment.commentable, comment), class: "btn-link" %>
+                <%= link_to "Delete", course_comment_path(comment.commentable, comment), data: { turbo_method: :delete, turbo_confirm: "Delete this comment?" }, class: "btn-link" %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
       </li>
     <% end %>
   </ul>

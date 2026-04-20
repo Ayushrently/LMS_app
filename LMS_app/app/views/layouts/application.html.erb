@@ -12,7 +12,16 @@
 
   <body>
     <% flash.each do |key, message| %>
+      <% next if ["authors_alert", "authors_notice"].include?(key.to_s) %>
       <p><%= "#{key.capitalize}: #{message}" %></p>
+    <% end %>
+
+
+    <% if notice %>
+      <p class="alert alert-success"><%= notice %></p>
+    <% end %>
+    <% if alert %>
+      <p class="alert alert-danger"><%= alert %></p>
     <% end %>
 
     <%= yield %>
