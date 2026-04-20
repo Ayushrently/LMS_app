@@ -1,19 +1,26 @@
 <div class="Nav_bar">
 	<div id="Nav_bar_title">Complete Profile</div>
-	<div id="Nav_bar_links">
-		<%= link_to "Courses", courses_path %>
-	</div>
 	<div id="profile_link">
 		<% if current_user.present? %>
 			<%= link_to "Profile", user_profile_path(current_user) %>
 			<span>|</span>
-			<%= link_to "Logout", new_user_path %>
+			<%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete } %>
 		<% else %>
-			<%= link_to "Login", new_user_path %>
+			<%= link_to "Sign in", new_user_session_path %>
 		<% end %>
 	</div>
 </div>
 
-<h1>Complete your profile</h1>
+<div class="container py-4" style="max-width: 700px;">
+	<div class="alert alert-info border-2 mb-4" role="alert">
+		<div class="fw-bold mb-2">✓ Complete Your Profile</div>
+		<p class="mb-0">Completing your profile is required before you can access the workspace. Please fill in all fields below.</p>
+	</div>
 
-<%= render "form" %>
+	<div class="mb-4">
+		<h1 class="h2 mb-1">Profile Setup</h1>
+		<p class="text-muted mb-0 small">Provide your information to get started</p>
+	</div>
+
+	<%= render "form" %>
+</div>

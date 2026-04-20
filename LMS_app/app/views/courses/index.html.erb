@@ -15,11 +15,11 @@
 
     <div id="profile_link">
         <% if current_user.present? %>
-        <%= link_to "View Profile", user_profile_path(current_user) %>
+        <%= link_to "Profile", user_profile_path(current_user) %>
         <span>|</span>
-        <%= link_to "Logout", new_user_path %>
+        <%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete } %>
         <% else %>
-        <%= link_to "Login", new_user_path %>
+        <%= link_to "Sign in", new_user_session_path %>
         <% end %>
     </div>
 </div>

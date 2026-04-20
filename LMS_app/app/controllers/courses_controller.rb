@@ -1,8 +1,6 @@
 class CoursesController < ApplicationController
 
     def index
-        return redirect_to new_user_path unless current_user.present?
-
         if current_user&.subscription&.plan_name == "pro"
             available_courses = Course.where(status: "published").select(:title, :id, :creator).order(created_at: :desc).limit(10)
         else
@@ -19,8 +17,6 @@ class CoursesController < ApplicationController
     end
 
     def create
-        return redirect_to new_user_path unless current_user.present?
-
         @course = Course.new(course_params)
         @course.creator = current_course_creator
         
@@ -50,14 +46,12 @@ class CoursesController < ApplicationController
 
     def show
         @course = Course.find_by( id: params[:id] )
-        @enrolled = current_user.present? && Enrollment.exists?(user_id: current_user.id, course_id: @course.id)
+        @enrollment = Enrollment.find_by(user_id: current_user&.id, course_id: @course.id)
         @comments = @course.comments.order(created_at: :desc).limit(10)
         @new_comment = Comment.new
     end
 
     def workspace
-        return redirect_to new_user_path unless current_user.present?
-
         authored_courses = current_user.authored_courses.order(updated_at: :desc)
         @draft_courses = authored_courses.where(status: "draft")
         @published_courses = authored_courses.where(status: "published")

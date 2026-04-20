@@ -1,0 +1,35 @@
+<div class="auth_page">
+  <div class="auth_card">
+    <h1 class="auth_title">Sign in</h1>
+    <p class="auth_subtitle">Access your courses, workspace, and profile.</p>
+
+    <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "app_form mt-0" }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <div>
+        <%= f.label :email %>
+        <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
+      </div>
+
+      <div>
+        <%= f.label :password %>
+        <%= f.password_field :password, autocomplete: "current-password" %>
+      </div>
+
+      <% if devise_mapping.rememberable? %>
+        <div class="form-check mb-3">
+          <%= f.check_box :remember_me, class: "form-check-input" %>
+          <%= f.label :remember_me, class: "form-check-label" %>
+        </div>
+      <% end %>
+
+      <div class="auth_actions">
+        <%= f.submit "Sign in" %>
+      </div>
+    <% end %>
+
+    <div class="auth_links">
+      <%= render "devise/shared/links" %>
+    </div>
+  </div>
+</div>
