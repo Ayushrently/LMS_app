@@ -1,26 +1,34 @@
-<div class="Nav_bar">
-	<div id="Nav_bar_title">Complete Profile</div>
-	<div id="profile_link">
-		<% if current_user.present? %>
-			<%= link_to "Profile", user_profile_path(current_user) %>
-			<span>|</span>
-			<%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete } %>
-		<% else %>
-			<%= link_to "Sign in", new_user_session_path %>
-		<% end %>
-	</div>
-</div>
+<div class="course-workspace-page py-4 py-md-5">
+	<div class="container" style="max-width: 780px;">
+		<section class="workspace-hero card border-0 shadow-sm mb-4">
+			<div class="card-body p-3 p-md-4">
+				<div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+					<div>
+						<p class="text-uppercase small fw-semibold text-secondary mb-1">Profile Setup</p>
+						<h1 class="h3 mb-1">Complete Profile</h1>
+						<p class="text-body-secondary mb-0">Finish your profile to unlock workspace features.</p>
+					</div>
+					<div class="d-flex flex-wrap gap-2">
+						<% if current_user.present? %>
+							<%= link_to "Profile", user_profile_path(current_user), class: "btn btn-outline-dark btn-sm" %>
+							<%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete }, class: "btn btn-dark btn-sm" %>
+						<% else %>
+							<%= link_to "Sign in", new_user_session_path, class: "btn btn-dark btn-sm" %>
+						<% end %>
+					</div>
+				</div>
+			</div>
+		</section>
 
-<div class="container py-4" style="max-width: 700px;">
-	<div class="alert alert-info border-2 mb-4" role="alert">
-		<div class="fw-bold mb-2">✓ Complete Your Profile</div>
-		<p class="mb-0">Completing your profile is required before you can access the workspace. Please fill in all fields below.</p>
-	</div>
+		<section class="card border-0 shadow-sm">
+			<div class="card-body p-3 p-md-4">
+				<div class="alert alert-info mb-4" role="alert">
+					<p class="fw-semibold mb-1">Complete your profile</p>
+					<p class="mb-0">Completing your profile is required before you can access the workspace.</p>
+				</div>
 
-	<div class="mb-4">
-		<h1 class="h2 mb-1">Profile Setup</h1>
-		<p class="text-muted mb-0 small">Provide your information to get started</p>
+				<%= render "form" %>
+			</div>
+		</section>
 	</div>
-
-	<%= render "form" %>
 </div>
