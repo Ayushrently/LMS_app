@@ -1,83 +1,112 @@
-<div class="Nav_bar">
-  <div id="Nav_bar_title">Edit Course</div>
-  <div id="Nav_bar_links">
-    <%= link_to "Course", course_path(@course) %>
-  </div>
-  <div id="Nav_bar_links">
-    <%= link_to "Back to Courses", courses_path %>
-  </div>
-  <div id="Nav_bar_links">
-    <%= link_to "Add lessons", new_course_lesson_path(@course) %>
-  </div>
-  <div id="profile_link">
-    <% if current_user.present? %>
-      <%= link_to "Profile", user_profile_path(current_user) %>
-      <span>|</span>
-      <%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete } %>
-    <% else %>
-      <%= link_to "Sign in", new_user_session_path %>
-    <% end %>
+<div class="course-edit-page py-4 py-md-5">
+  <div class="container">
+    <section class="edit-hero card border-0 shadow-sm mb-4">
+      <div class="card-body p-3 p-md-4">
+        <div class="d-flex flex-column flex-xl-row align-items-xl-center justify-content-between gap-3">
+          <div>
+            <p class="text-uppercase small fw-semibold text-secondary mb-1">Course Editor</p>
+            <h1 class="h3 mb-1">Edit Course</h1>
+            <p class="text-body-secondary mb-0">Creator: <span class="fw-semibold text-dark"><%= @course.creator %></span></p>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <%= link_to "View Course", course_path(@course), class: "btn btn-outline-secondary btn-sm" %>
+            <%= link_to "Back to Courses", courses_path, class: "btn btn-outline-secondary btn-sm" %>
+            <%= link_to "Add Lesson", new_course_lesson_path(@course), class: "btn btn-primary btn-sm" %>
+            <% if current_user.present? %>
+              <%= link_to "Profile", user_profile_path(current_user), class: "btn btn-outline-dark btn-sm" %>
+              <%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete }, class: "btn btn-dark btn-sm" %>
+            <% else %>
+              <%= link_to "Sign in", new_user_session_path, class: "btn btn-dark btn-sm" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-white border-0 pt-3 pb-0 px-3 px-md-4">
+        <h2 class="h5 mb-1">Collaborators</h2>
+        <p class="text-body-secondary mb-3">Set the usernames allowed to edit this course.</p>
+      </div>
+      <div class="card-body pt-0 p-3 p-md-4">
+        <% if flash[:authors_alert].present? %>
+          <div class="alert alert-danger mb-3" role="alert"><%= flash[:authors_alert] %></div>
+        <% elsif flash[:authors_notice].present? %>
+          <div class="alert alert-info mb-3" role="alert"><%= flash[:authors_notice] %></div>
+        <% end %>
+
+        <%= form_with url: update_authors_course_path(@course), method: :patch, html: { class: "authors_form row g-3 align-items-end" } do |form| %>
+          <div class="col-12 col-lg-9">
+            <%= form.label :authors_csv, "Authors (CSV usernames)", class: "form-label" %>
+            <%= form.text_field :authors_csv, value: @authors_csv, id: "authors_csv_input", placeholder: "creator_username,another_author", class: "form-control" %>
+          </div>
+          <div class="col-12 col-lg-3 d-grid">
+            <%= form.submit "Update Authors", class: "btn btn-outline-primary" %>
+          </div>
+        <% end %>
+      </div>
+    </section>
+
+    <section class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-0 pt-3 pb-0 px-3 px-md-4">
+        <h2 class="h5 mb-1">Course Details</h2>
+        <p class="text-body-secondary mb-3">Update title, description, and access tier.</p>
+      </div>
+      <div class="card-body pt-0 p-3 p-md-4">
+        <%= form_with model: @course, html: { class: "row g-3" } do |form| %>
+          <div class="col-12">
+            <%= render "errors/error", context: @course %>
+          </div>
+
+          <div class="col-12">
+            <%= form.label :title, "Title", class: "form-label" %>
+            <%= form.text_field :title, class: "form-control" %>
+          </div>
+
+          <div class="col-12">
+            <%= form.label :description, "Description", class: "form-label" %>
+            <%= form.text_area :description, class: "form-control", rows: 5 %>
+          </div>
+
+          <fieldset class="col-12">
+            <legend class="form-label mb-2">Tier</legend>
+            <div class="d-flex flex-wrap gap-3">
+              <div class="form-check mb-0">
+                <%= form.radio_button :tier, "free", class: "form-check-input", id: "course_tier_free" %>
+                <%= form.label :tier_free, "Free", class: "form-check-label" %>
+              </div>
+              <div class="form-check mb-0">
+                <%= form.radio_button :tier, "pro", class: "form-check-input", id: "course_tier_pro" %>
+                <%= form.label :tier_pro, "Pro", class: "form-check-label" %>
+              </div>
+            </div>
+          </fieldset>
+
+          <div class="col-12">
+            <h3 class="h6 mb-2">Lessons</h3>
+            <% if @course.lessons.exists? %>
+              <ol class="list-group list-group-numbered">
+                <% @course.lessons.order(:created_at, :id).each do |lesson| %>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="text-truncate"><%= lesson.title %></span>
+                    <%= link_to "Edit", edit_course_lesson_path(@course, lesson), class: "btn btn-sm btn-outline-secondary" %>
+                  </li>
+                <% end %>
+              </ol>
+            <% else %>
+              <div class="rounded-3 border border-secondary-subtle bg-light p-3">
+                <p class="text-body-secondary mb-0">No lessons yet. Use Add Lesson to create your first one.</p>
+              </div>
+            <% end %>
+          </div>
+
+          <div class="col-12 d-flex flex-column flex-sm-row gap-2 pt-1">
+            <%= form.submit "Save Changes", class: "btn btn-primary" %>
+            <%= link_to "Delete Course", course_path(@course.id), data: { turbo_method: :delete, turbo_confirm: "Delete this course?" }, class: "btn btn-outline-danger" %>
+          </div>
+        <% end %>
+      </div>
+    </section>
   </div>
 </div>
-
-<div class="content_panel">
-  <p class="course_meta"><%= "Creator: #{@course.creator}" %></p>
-  <% if flash[:authors_alert].present? %>
-    <p class="authors_flash authors_flash_alert"><%= flash[:authors_alert] %></p>
-  <% elsif flash[:authors_notice].present? %>
-    <p class="authors_flash authors_flash_notice"><%= flash[:authors_notice] %></p>
-  <% end %>
-  <%= form_with url: update_authors_course_path(@course), method: :patch, html: { class: "authors_form" } do |form| %>
-    <div class="authors_form_row">
-      <%= form.label :authors_csv, "Authors (CSV usernames)" %>
-      <%= form.text_field :authors_csv, value: @authors_csv, id: "authors_csv_input", placeholder: "creator_username,another_author" %>
-    </div>
-    <div class="authors_form_actions">
-      <%= form.submit "Update Authors" %>
-    </div>
-  <% end %>
-</div>
-
-<%= form_with model: @course, html: { class: "app_form" } do |form| %>
-  <%= render "errors/error", context:@course %>
-  <div>
-    <%= form.label :title, "Title" %>
-    <%= form.text_field :title %>
-  </div>
-
-  <div>
-    <%= form.label :description, "Description" %>
-    <%= form.text_area :description %>
-  </div>
-
-  <div class="horizontal-group" >
-    <%= form.label :tier, "Tier" %>
-    <%= form.radio_button :tier, "free" %>
-    <%= form.label :tier_free, "Free" %>
-    <%= form.radio_button :tier, "pro" %>
-    <%= form.label :tier_pro, "Pro" %>
-  </div>
-
-  <div class="horizontal-group" >
-    <%= form.label :status, "Status" %>
-    <%= form.radio_button :status, "published" %>
-    <%= form.label :status_published, "Published" %>
-    <%= form.radio_button :status, "draft" %>
-    <%= form.label :status_draft, "Draft" %>
-  </div>
-
-  <div>
-    <label>Lessons</label>
-    <ol>
-      <% @course.lessons.order(:created_at, :id).each do |lesson| %>
-        <li><%= link_to lesson.title, edit_course_lesson_path(@course, lesson) %></li>
-      <% end %>
-    </ol>
-  </div>
-
-  <div>
-    <%= form.submit "Save" %>
-  </div>
-    <%= link_to "Delete this course", course_path(@course.id), data: { turbo_method: :delete, turbo_confirm: "Delete this course?" }, class: "btn-link" %>
-<% end %>
 

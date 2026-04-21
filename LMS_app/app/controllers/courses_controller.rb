@@ -1,10 +1,11 @@
 class CoursesController < ApplicationController
+    before_action :set_course, only: [:show, :edit, :update, :destroy, :update_authors]
 
     def index
         if current_user&.subscription&.plan_name == "pro"
-            available_courses = Course.where(status: "published").select(:title, :id, :creator).order(created_at: :desc).limit(10)
+            available_courses = Course.select(:title, :id, :creator).order(created_at: :desc).limit(10)
         else
-            available_courses = Course.where(status: "published",tier: "free").select(:title, :id, :creator).order(created_at: :desc).limit(10)
+            available_courses = Course.where(tier: "free").select(:title, :id, :creator).order(created_at: :desc).limit(10)
         end
 
         enrolled_course_ids = current_user.enrollments.select(:course_id)
@@ -29,8 +30,6 @@ class CoursesController < ApplicationController
     end
 
     def update
-        @course = Course.find_by( id: params[:id] )
-
         if @course.update(course_params)
             redirect_to courses_path(@course)
         else
@@ -39,47 +38,44 @@ class CoursesController < ApplicationController
     end
 
     def destroy
-        @course = Course.find_by( id: params[:id] )
         @course.destroy
         redirect_to courses_path
     end
 
     def show
-        @course = Course.find_by( id: params[:id] )
         @enrollment = Enrollment.find_by(user_id: current_user&.id, course_id: @course.id)
         @comments = @course.comments.order(created_at: :desc).limit(10)
         @new_comment = Comment.new
     end
 
     def workspace
-        authored_courses = current_user.authored_courses.order(updated_at: :desc)
-        @draft_courses = authored_courses.where(status: "draft")
-        @published_courses = authored_courses.where(status: "published")
+        @courses = current_user.authored_courses.order(updated_at: :desc)
     end
 
     def edit
-        @course = Course.find_by( id: params[:id] )
         @authors_csv = authors_csv_for(@course)
     end
 
     def update_authors
-        @course = Course.find_by( id: params[:id] )
-
         creator_username = @course.creator
         parsed_usernames = params[:authors_csv].to_s.split(",").map(&:strip).reject(&:blank?)
-        usernames = ([creator_username] + parsed_usernames).compact.uniq
+        requested_identifiers = ([creator_username] + parsed_usernames).compact.uniq
 
-        users = User.joins(:profile).where(profiles: { username: usernames }).includes(:profile)
+        users = User.joins(:profile).where(profiles: { username: parsed_usernames }).includes(:profile)
         users_by_username = users.index_by { |user| user.profile.username }
-
-        ordered_users = usernames.filter_map { |username| users_by_username[username] }
+        creator_user = user_from_creator_identifier(creator_username)
+        
+        ordered_users = parsed_usernames.filter_map { |username| users_by_username[username] }
+        ordered_users.unshift(creator_user) if creator_user.present?
+        ordered_users.uniq!(&:id)
         current_author_ids = @course.author_ids.sort
         next_author_ids = ordered_users.map(&:id).sort
         authors_updated = current_author_ids != next_author_ids
 
         @course.authors = ordered_users if authors_updated
 
-        missing_usernames = usernames - ordered_users.map { |user| user.profile.username }
+        found_identifiers = ordered_users.flat_map { |user| [user.profile&.username, user.profile&.name, user.email] }.compact
+        missing_usernames = requested_identifiers - found_identifiers
 
         found_msg = "Found users were updated." if authors_updated
 
@@ -93,7 +89,7 @@ class CoursesController < ApplicationController
     end
 
     def course_params
-        params.require(:course).permit(:title, :description, :tier, :status)
+        params.require(:course).permit(:title, :description, :tier)
     end
 
     def current_course_creator
@@ -104,6 +100,20 @@ class CoursesController < ApplicationController
         creator_username = course.creator
         author_usernames = course.authors.includes(:profile).map { |author| author.profile&.username }.compact
         ([creator_username] + author_usernames).compact.uniq.join(",")
+    end
+
+    def set_course
+        @course = Course.find_by(id: params[:id])
+        redirect_to courses_path, alert: "Course not found" unless @course
+    end
+
+    def user_from_creator_identifier(identifier)
+        return nil if identifier.blank?
+
+        User
+            .left_joins(:profile)
+            .includes(:profile)
+            .find_by("profiles.username = :value OR profiles.name = :value OR users.email = :value", value: identifier)
     end
 
 end

@@ -2,9 +2,9 @@ class EnrollmentsController < ApplicationController
   before_action :set_course
 
   def create
-
-    enrollment = @course.enrollments.build(user: current_user, enrolled_at: Time.current)
-
+    @user = User.find_by(id: enrollment_params[:user_id])
+    return redirect_back(fallback_location: course_path(@course), alert: "User not found") unless @user
+    enrollment = @course.enrollments.build(user: @user, enrolled_at: Time.current)
     if enrollment.save
       redirect_to course_path(@course)
     else
@@ -26,6 +26,9 @@ class EnrollmentsController < ApplicationController
   end
 
   private
+  def enrollment_params
+    params.require(:enrollment).permit(:user_id)
+  end
 
   def set_course
     @course = Course.find_by(id:params[:course_id])

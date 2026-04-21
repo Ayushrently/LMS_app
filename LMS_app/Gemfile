@@ -72,5 +72,6 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
-
+gem 'activeadmin'
+gem 'sassc-rails'
 gem "devise", "~> 5.0"
