@@ -15,12 +15,35 @@ class Course < ApplicationRecord
                             after_remove: :remove_author_enrollment
     has_many :comments, as: :commentable, dependent: :destroy
 
+    scope :active, -> { where(deleted_at: nil) }
+    scope :soft_deleted, -> { where.not(deleted_at: nil) }
+
+    def soft_deleted?
+        deleted_at.present?
+    end
+
+    def soft_delete!
+        return destroy unless enrollments.any?
+        transaction do
+            author_ids_to_clean = authors.pluck(:id)
+            
+            authors.delete_all
+            enrollments.where(user_id: author_ids_to_clean).destroy_all
+            
+            update!(deleted_at: Time.current)
+        end
+    end
+
+    def hard_delete_if_no_enrollments!
+        destroy if enrollments.empty?
+    end
+
     private
 
     def remove_author_enrollment(author)
         enrollments.destroy_by(user: author)
     end
-    
+
     def ensure_author_enrollment(author)
         enrollments.find_or_create_by(user: author)
     end
@@ -38,4 +61,12 @@ class Course < ApplicationRecord
         identifiers = [author.profile&.username, author.profile&.name, author.email].compact
         identifiers.include?(creator)
     end
+    def self.ransackable_associations(auth_object = nil)
+        ["enrollments", "authors", "users"]
+    end
+
+    def self.ransackable_attributes(auth_object = nil)
+        ["title", "description", "created_at", "updated_at", "deleted_at"]
+    end
+
 end

@@ -1,16 +1,12 @@
 class CoursesController < ApplicationController
     before_action :set_course, only: [:show, :edit, :update, :destroy, :update_authors]
-
     def index
-        if current_user&.subscription&.plan_name == "pro"
-            available_courses = Course.select(:title, :id, :creator).order(created_at: :desc).limit(10)
-        else
-            available_courses = Course.where(tier: "free").select(:title, :id, :creator).order(created_at: :desc).limit(10)
-        end
+        available_courses = Course.active.select(:title, :id, :creator, :deleted_at, :tier).order(created_at: :desc).limit(20)
 
+        authored_course_ids = current_user.authored_course_ids
         enrolled_course_ids = current_user.enrollments.select(:course_id)
-        @enrolled_courses = available_courses.where(id: enrolled_course_ids)
-        @other_courses = available_courses.where.not(id: enrolled_course_ids)
+        @enrolled_courses = Course.where(id: enrolled_course_ids).where.not(id: authored_course_ids).select(:title, :id, :creator, :deleted_at, :tier).order(created_at: :desc)
+        @other_courses = available_courses.where.not(id: enrolled_course_ids).where.not(id: authored_course_ids)
     end
 
     def new 
@@ -38,7 +34,7 @@ class CoursesController < ApplicationController
     end
 
     def destroy
-        @course.destroy
+        @course.soft_delete!
         redirect_to courses_path
     end
 
@@ -49,7 +45,7 @@ class CoursesController < ApplicationController
     end
 
     def workspace
-        @courses = current_user.authored_courses.order(updated_at: :desc)
+        @courses = current_user.authored_courses.active.order(updated_at: :desc)
     end
 
     def edit

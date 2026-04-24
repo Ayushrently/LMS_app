@@ -2,27 +2,25 @@ class EnrollmentsController < ApplicationController
   before_action :set_course
 
   def create
-    @user = User.find_by(id: enrollment_params[:user_id])
-    return redirect_back(fallback_location: course_path(@course), alert: "User not found") unless @user
-    enrollment = @course.enrollments.build(user: @user, enrolled_at: Time.current)
-    if enrollment.save
-      redirect_to course_path(@course)
+    enrollment = @course.enrollments.build(user: current_user, enrolled_at: Time.current)
+    privileged_user = current_user.profile.subscription&.pro? || @course.free?
+    if privileged_user && enrollment.save
+      redirect_to course_path(@course), notice: "Successfully enrolled in course."
+    elsif !privileged_user
+      redirect_to course_path(@course), alert: "You need a Pro subscription to enroll in this course."
     else
-      redirect_to course_path(@course)
+      redirect_to course_path(@course), alert: "Unable to enroll. Please try again."
     end
   end
 
   def destroy
     enrollment = @course.enrollments.find_by(user_id: current_user.id)
     if enrollment&.destroy
-      redirect_to course_path(@course)
+      @course.hard_delete_if_no_enrollments! if @course.soft_deleted?
+      redirect_to courses_path(@course)
     else
       redirect_to course_path(@course)
     end
-  end
-
-  def hello
-    render plain: "Hello from EnrollmentsController!"
   end
 
   private

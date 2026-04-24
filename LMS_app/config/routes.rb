@@ -9,7 +9,13 @@ Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Defines the root path route ("/")
-  root "courses#index"
+  authenticated :user do
+    root to: "courses#index", as: :authenticated_root
+  end
+
+  devise_scope :user do
+    root to: "devise/sessions#new"
+  end
   get "workspace", to: "courses#workspace"
 
   resources :courses do 
