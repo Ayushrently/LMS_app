@@ -1,302 +1,353 @@
 /*
- * This is a manifest file that'll be compiled into application.css, which will include all the files
- * listed below.
- *
- * Any CSS (and SCSS, if configured) file within this directory, lib/assets/stylesheets, or any plugin's
- * vendor/assets/stylesheets directory can be referenced here using a relative path.
- *
- * You're free to add application-wide styles to this file and they'll appear at the bottom of the
- * compiled file so the styles you add here take precedence over styles defined in any other CSS
- * files in this directory. Styles in this file should be added after the last require_* statement.
- * It is generally better to create a new file per style scope.
- *
+ * This is a manifest file that'll be compiled into application.css.
  *= require_tree .
  *= require_self
  */
 
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
+/* ============================================================
+   Base Font Scale
+   - Bootstrap defaults to 16px (1rem). Bumping to 17px keeps
+     all rem-based utilities (spacing, headings, .small) in
+     proportion while making body text noticeably more readable.
+   ============================================================ */
 
-:root {
-  --app-bg: #edf4f7;
-  --app-bg-accent: #f7fafb;
-  --panel-bg: #ffffff;
-  --ink-1: #0f172a;
-  --ink-2: #1e293b;
-  --ink-3: #64748b;
-  --line: #d7e3ea;
-  --line-strong: #c5d4de;
-  --brand: #0f172a;
-  --brand-hover: #1f2b43;
-  --radius: 12px;
-  --shadow-sm: 0 4px 14px rgba(15, 23, 42, 0.06);
-  --shadow-md: 0 10px 28px rgba(15, 23, 42, 0.1);
+
+:target {
+  scroll-margin-top: 100px;
 }
 
-* {
-  box-sizing: border-box;
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  margin: 0;
+  font-size: 1.0625rem; /* 17px */
+}
+
+/* ============================================================
+   Courses Pages Theme (index/show/new/edit/workspace)
+   - Shared palette and component styling scoped to all
+     course pages with .lms-course-shell.
+   ============================================================ */
+
+/*
+   Keep themed pages consistent even when Rails renders templates
+   under non-GET actions (e.g., create/update after validation errors).
+*/
+/* body[class^="page-courses-"],
+body[class^="page-lessons-"],
+body[class^="page-profiles-"],
+body[class^="page-users-"],
+body[class^="page-sessions-"],
+body[class^="page-registrations-"]  */
+body{
+  background:
+    radial-gradient(circle at 10% 8%, rgba(58, 108, 217, 0.24), rgba(58, 108, 217, 0) 42%),
+    radial-gradient(circle at 88% 18%, rgba(16, 185, 129, 0.12), rgba(16, 185, 129, 0) 36%),
+    linear-gradient(160deg, #081425 0%, #0c1d34 48%, #13294a 100%);
+  background-attachment: fixed;
+}
+
+/* body[class^="page-courses-"] .flash_stack .alert,
+body[class^="page-lessons-"] .flash_stack .alert,
+body[class^="page-profiles-"] .flash_stack .alert,
+body[class^="page-users-"] .flash_stack .alert,
+body[class^="page-sessions-"] .flash_stack .alert,
+body[class^="page-registrations-"]  */
+.flash_stack .alert {
+  background-color: rgba(8, 19, 35, 0.92);
+  border-color: rgba(166, 189, 224, 0.22);
+  color: #e6eef9;
+}
+
+/* body[class^="page-courses-"] .flash_stack .alert-success,
+body[class^="page-lessons-"] .flash_stack .alert-success,
+body[class^="page-profiles-"] .flash_stack .alert-success,
+body[class^="page-users-"] .flash_stack .alert-success,
+body[class^="page-sessions-"] .flash_stack .alert-success,
+body[class^="page-registrations-"]  */
+.flash_stack .alert-success {
+  background-color: rgba(8, 62, 46, 0.9);
+  border-color: rgba(74, 222, 128, 0.35);
+  color: #bbf7d0;
+}
+
+/* body[class^="page-courses-"] .flash_stack .alert-danger,
+body[class^="page-lessons-"] .flash_stack .alert-danger,
+body[class^="page-profiles-"] .flash_stack .alert-danger,
+body[class^="page-users-"] .flash_stack .alert-danger,
+body[class^="page-sessions-"] .flash_stack .alert-danger,
+body[class^="page-registrations-"]  */
+.flash_stack .alert-danger {
+  background-color: rgba(89, 20, 34, 0.88) !important;
+  border-color: rgba(251, 113, 133, 0.4);
+  color: #fecdd3;
+}
+
+/* body[class^="page-courses-"] .flash_stack .alert-secondary,
+body[class^="page-lessons-"] .flash_stack .alert-secondary,
+body[class^="page-profiles-"] .flash_stack .alert-secondary,
+body[class^="page-users-"] .flash_stack .alert-secondary,
+body[class^="page-sessions-"] .flash_stack .alert-secondary,
+body[class^="page-registrations-"] */
+.flash_stack .alert-secondary {
+  background-color: rgba(8, 19, 35, 0.92);
+  border-color: rgba(166, 189, 224, 0.22);
+  color: #b2c2d8;
+}
+
+.lms-course-shell {
   min-height: 100vh;
-  font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif;
-  color: var(--ink-1);
-  background:
-    radial-gradient(circle at 100% -10%, rgba(14, 116, 144, 0.1), transparent 36%),
-    radial-gradient(circle at -10% 100%, rgba(22, 101, 52, 0.08), transparent 34%),
-    linear-gradient(180deg, var(--app-bg-accent) 0%, var(--app-bg) 70%);
-  line-height: 1.55;
 }
 
-a {
-  color: #15506a;
+.lms-course-shell .workspace-hero,
+.lms-course-shell section.card {
+  background: linear-gradient(145deg, rgba(13, 30, 55, 0.95), rgba(20, 44, 79, 0.95)) !important;
+  border: 1px solid rgba(148, 176, 216, 0.24) !important;
+  box-shadow: 0 14px 35px rgba(3, 9, 18, 0.4) !important;
 }
 
-a:hover {
-  color: #0f172a;
+.lms-course-shell .card-header {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(148, 176, 216, 0.16) !important;
 }
 
-h1,
-h2,
-h3,
-h4 {
-  color: var(--ink-1);
-  margin-top: 0;
+.lms-course-shell h1,
+.lms-course-shell h2,
+.lms-course-shell h3,
+.lms-course-shell .h3,
+.lms-course-shell .h5,
+.lms-course-shell .h6 {
+  color: #eef4ff;
 }
 
-.flash_stack {
-  max-width: 1100px;
+.lms-course-shell p,
+.lms-course-shell .text-body-secondary,
+.lms-course-shell .small,
+.lms-course-shell legend,
+.lms-course-shell label,
+.lms-course-shell li,
+.lms-course-shell span {
+  color: #9ab0cc !important;
 }
 
-.app-page,
-.course-workspace-page,
-.course-edit-page {
-  position: relative;
-}
-
-.app-page::before,
-.course-workspace-page::before,
-.course-edit-page::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at top right, rgba(14, 116, 144, 0.08), transparent 40%),
-    radial-gradient(circle at bottom left, rgba(22, 101, 52, 0.08), transparent 35%);
-  pointer-events: none;
-}
-
-.app-page > .container,
-.course-workspace-page > .container,
-.course-edit-page > .container {
-  position: relative;
-  z-index: 1;
-}
-
-.workspace-hero,
-.edit-hero {
-  background: linear-gradient(120deg, #f8fbff 0%, #eef6f3 100%);
+.lms-course-shell .workspace-hero .text-secondary {
+  color: #74a8ff !important;
 }
 
 .course-list-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid rgba(148, 176, 216, 0.2) !important;
+  border-radius: 0.75rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  background: linear-gradient(160deg, rgba(18, 39, 70, 0.94), rgba(20, 47, 86, 0.94));
 }
 
 .course-list-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0.75rem 1.5rem rgba(15, 23, 42, 0.12) !important;
+  transform: translateY(-3px);
+  border-color: rgba(96, 165, 250, 0.62) !important;
+  box-shadow: 0 12px 30px rgba(3, 10, 20, 0.48) !important;
 }
 
-.course-list-card .button_to {
+.lms-card-title-link {
+  color: #edf4ff;
+}
+
+.lms-card-title-link:hover {
+  color: #7ab7ff;
+}
+
+.lms-course-shell .btn-outline-secondary,
+.lms-course-shell .btn-outline-dark {
+  color: #c6d8ee;
+  border-color: rgba(166, 189, 224, 0.45);
+}
+
+.lms-course-shell .btn-outline-secondary:hover,
+.lms-course-shell .btn-outline-dark:hover {
+  background-color: rgba(166, 189, 224, 0.14);
+  color: #f2f7ff;
+  border-color: rgba(166, 189, 224, 0.78);
+}
+
+.lms-course-shell .btn-primary,
+.lms-course-shell .btn-dark {
+  background: linear-gradient(120deg, #1d4ed8, #2563eb);
+  border-color: #2563eb;
+}
+
+.lms-course-shell .btn-primary:hover,
+.lms-course-shell .btn-dark:hover {
+  background: linear-gradient(120deg, #2563eb, #3b82f6);
+  border-color: #3b82f6;
+}
+
+.lms-course-shell .btn-outline-danger {
+  color: #fecdd3;
+  border-color: rgba(251, 113, 133, 0.52);
+}
+
+.lms-course-shell .btn-outline-danger:hover {
+  background-color: rgba(251, 113, 133, 0.18);
+  color: #ffe4e8;
+  border-color: rgba(251, 113, 133, 0.72);
+}
+
+.lms-course-shell .form-control,
+.lms-course-shell .form-select {
+  background-color: rgba(7, 18, 34, 0.72);
+  border-color: rgba(148, 176, 216, 0.36);
+  color: #e6eef9;
+}
+
+.lms-course-shell .app_form {
   margin: 0;
 }
 
-.app_form {
-  background: var(--panel-bg);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
-  padding: 16px;
-  max-width: 740px;
-  margin: 12px 0;
+.lms-course-shell .app_form hr {
+  border-color: rgba(148, 176, 216, 0.18);
 }
 
-.app_form.mt-0 {
-  margin-top: 0;
+.lms-course-shell .text-muted,
+.lms-course-shell .form-text,
+.lms-course-shell small {
+  color: #85a0c4 !important;
 }
 
-.app_form div {
-  margin: 0 0 14px;
+.lms-course-shell .form-control::placeholder {
+  color: #7892b5;
 }
 
-label,
-.form-label {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: 600;
-  color: var(--ink-2);
+.lms-course-shell .form-control:focus,
+.lms-course-shell .form-check-input:focus {
+  border-color: rgba(96, 165, 250, 0.78);
+  box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2);
 }
 
-input[type="text"],
-input[type="email"],
-input[type="password"],
-textarea,
-select,
-.form-control,
-.form-select {
-  width: 100%;
-  max-width: 100%;
-  border: 1px solid var(--line-strong);
-  border-radius: 10px;
-  padding: 10px 12px;
-  font-size: 15px;
-  background: #ffffff;
-  color: var(--ink-1);
+.lms-course-shell .form-check-input {
+  background-color: rgba(7, 18, 34, 0.72);
+  border-color: rgba(148, 176, 216, 0.45);
 }
 
-textarea {
-  min-height: 110px;
-  resize: vertical;
+.lms-course-shell .form-check-input:checked {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
 }
 
-input:focus,
-textarea:focus,
-select:focus,
-.form-control:focus,
-.form-select:focus {
-  outline: none;
-  border-color: #6797b1;
-  box-shadow: 0 0 0 0.18rem rgba(14, 116, 144, 0.18);
+.lms-course-shell .lms-course-list .list-group-item {
+  background-color: rgba(8, 19, 35, 0.88);
+  border-color: rgba(148, 176, 216, 0.2);
+  color: #d7e4f7;
 }
 
-input[type="submit"],
-button,
-.button_to input[type="submit"],
-.btn-primary {
-  border: 1px solid var(--brand);
-  border-radius: 10px;
-  background: var(--brand);
-  color: #ffffff;
-  font-weight: 600;
-  padding: 8px 14px;
-  cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease;
+.lms-course-shell .lms-comments__list {
+  border-top: 1px solid rgba(148, 176, 216, 0.18);
+  border-bottom: 1px solid rgba(148, 176, 216, 0.18);
 }
 
-input[type="submit"]:hover,
-button:hover,
-.button_to input[type="submit"]:hover,
-.btn-primary:hover {
-  background: var(--brand-hover);
-  border-color: var(--brand-hover);
+.lms-course-shell .lms-comments__item {
+  background-color: rgba(8, 19, 35, 0.52);
+  border-color: rgba(148, 176, 216, 0.16);
 }
 
-.form_errors {
-  list-style: none;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
-  border-radius: 10px;
-  padding: 10px 14px;
-  margin: 0 0 14px;
+.lms-course-shell .lms-comments__author {
+  color: #e4efff !important;
 }
 
-.form_actions {
-  margin-top: 16px;
+.lms-course-shell .lms-comments__body {
+  color: #a7bdd8 !important;
+  white-space: pre-wrap;
 }
 
-.alert {
-  border-radius: 12px;
-  padding: 14px;
+.lms-course-shell .lms-comments__actions .btn {
+  min-width: 5.2rem;
 }
 
-.alert-info {
-  background-color: #ecf0ff;
-  border-color: #b3d9ff;
-  color: #0f172a;
+.lms-course-shell .lms-comments__textarea {
+  min-height: 7.5rem;
 }
 
-.alert-danger {
-  background-color: #fef2f2;
-  border-color: #fecaca;
-  color: #991b1b;
+.lms-course-shell .lms-comment-editor .form-control {
+  min-height: 9.5rem;
 }
 
-.auth_page {
-  min-height: calc(100vh - 120px);
+.lms-course-shell .rounded-3.border.border-secondary-subtle.bg-light {
+  background-color: rgba(7, 18, 34, 0.58) !important;
+  border-color: rgba(148, 176, 216, 0.28) !important;
+}
+
+.lms-course-shell .rounded-3.border.border-secondary-subtle.bg-light p,
+.lms-course-shell .rounded-3.border.border-secondary-subtle.bg-light .fw-semibold {
+  color: #bed0e6 !important;
+}
+
+.lms-course-shell .alert-warning {
+  background-color: rgba(120, 53, 15, 0.34);
+  border-color: rgba(251, 191, 36, 0.38);
+  color: #fde68a;
+}
+
+.lms-course-shell .alert {
+  background-color: rgba(8, 19, 35, 0.92);
+  border-color: rgba(166, 189, 224, 0.24);
+  color: #e6eef9;
+}
+
+.lms-course-shell .alert-danger {
+  background-color: rgba(89, 20, 34, 0.88);
+  border-color: rgba(251, 113, 133, 0.4);
+  color: #fecdd3;
+}
+
+.lms-course-shell .alert-info {
+  background-color: rgba(18, 70, 121, 0.28);
+  border-color: rgba(96, 165, 250, 0.3);
+  color: #dbeafe;
+}
+
+.lms-course-shell.auth_page,
+.auth_page.lms-course-shell {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 24px 18px;
 }
 
-.auth_card {
-  width: min(100%, 520px);
-  background: var(--panel-bg);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  box-shadow: var(--shadow-md);
-  padding: 24px;
+.lms-course-shell .auth_card {
+  overflow: hidden;
 }
 
-.auth_title {
-  margin: 0 0 6px;
-  font-size: 30px;
-  color: var(--ink-1);
+.lms-course-shell .auth_links {
+  border-color: rgba(148, 176, 216, 0.18) !important;
 }
 
-.auth_subtitle {
-  margin: 0 0 16px;
-  color: var(--ink-3);
+.lms-course-shell .auth_links a {
+  color: #9ec5ff;
 }
 
-.auth_actions {
-  margin-top: 14px;
+.lms-course-shell .auth_links a:hover {
+  color: #d6e8ff;
 }
 
-.auth_links {
-  margin-top: 12px;
-}
-
-.auth_links a {
-  color: #164e63;
+.lms-course-shell dl dt {
+  color: #88a1c3 !important;
   font-weight: 600;
 }
 
-.auth_page p,
-.auth_page form,
-.auth_page div,
-.auth_page ul {
-  margin-left: 0;
-  margin-right: 0;
+.lms-course-shell dl dd,
+.lms-course-shell .card-body > p,
+.lms-course-shell .card-body .fw-semibold,
+.lms-course-shell .card-body .text-dark {
+  color: #edf4ff !important;
 }
 
-.course-edit-page .list-group-item {
-  gap: 0.75rem;
+a.btn,
+a.btn:hover,
+a.btn:focus,
+a.btn:active {
+  text-decoration: none;
 }
 
-.course-edit-page .list-group-item span {
-  max-width: 80%;
-}
-
-@media (max-width: 768px) {
-  .app-page,
-  .course-workspace-page,
-  .course-edit-page {
-    padding-top: 1rem !important;
-  }
-
-  .workspace-hero .btn,
-  .edit-hero .btn {
-    flex: 1 1 auto;
-  }
-
-  .course-edit-page .list-group-item {
-    align-items: flex-start !important;
-    flex-direction: column;
-  }
-
-  .course-edit-page .list-group-item span {
-    max-width: 100%;
+@media (max-width: 767.98px) {
+  .lms-course-shell .workspace-hero .btn,
+  .lms-course-shell .workspace-hero .btn-sm {
+    width: 100%;
   }
 }

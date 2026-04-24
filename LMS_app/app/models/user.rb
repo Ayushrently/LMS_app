@@ -13,4 +13,9 @@ class User < ApplicationRecord
     has_many :enrollments, dependent: :destroy
     has_many :courses, through: :enrollments
     has_and_belongs_to_many :authored_courses, class_name: 'Course', join_table: :courses_users
+
+    def self.ransackable_attributes(auth_object = nil)
+        authorizable_ransackable_attributes
+    end
+    
 end

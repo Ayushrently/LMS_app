@@ -1,28 +1,17 @@
-<div class="app-page py-4 py-md-5">
+<div class="lms-course-shell courses-index py-4 py-md-5">
   <div class="container">
-    <section class="workspace-hero card border-0 shadow-sm mb-4">
-      <div class="card-body p-3 p-md-4">
-        <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
-          <div>
-            <p class="text-uppercase small fw-semibold text-secondary mb-1">Learning Hub</p>
-            <h1 class="h3 mb-1">Courses</h1>
-            <p class="text-body-secondary mb-0">Browse your enrolled courses and discover new ones.</p>
-          </div>
-          <div class="d-flex flex-wrap gap-2">
-            <%= link_to "Create New Course", new_course_path, class: "btn btn-primary btn-sm" %>
-            <% if current_user_author? %>
-              <%= link_to "Workspace", workspace_path, class: "btn btn-outline-secondary btn-sm" %>
-            <% end %>
-            <% if current_user.present? %>
-              <%= link_to "Profile", user_profile_path(current_user), class: "btn btn-outline-dark btn-sm" %>
-              <%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete }, class: "btn btn-dark btn-sm" %>
-            <% else %>
-              <%= link_to "Sign in", new_user_session_path, class: "btn btn-dark btn-sm" %>
-            <% end %>
-          </div>
-        </div>
-      </div>
-    </section>
+    <% temp_nav_links = [
+      { text: "Create New Course", path: new_course_path, primary: false }
+    ] %>
+    <% if current_user_author? %>
+      <% temp_nav_links.push({ text: "Workspace", path: workspace_path, primary: false }) %>
+    <% end %>
+    <%= render "navbar/navbar",
+        nav_heading:"Learning Hub", 
+        nav_title:"Courses",
+        nav_text:"Browse your enrolled courses and discover new ones.", 
+        nav_links:temp_nav_links
+    %>
 
     <section class="card border-0 shadow-sm mb-4">
       <div class="card-header bg-white border-0 pt-3 pb-0 px-3 px-md-4">
@@ -34,10 +23,16 @@
           <div class="row g-3 g-md-4">
             <% @enrolled_courses.each do |course| %>
               <div class="col-12 col-md-6 col-xl-4">
-                <article class="course-list-card card h-100 border-0 shadow-sm">
+                <article class="course-list-card card h-100 border-0">
                   <div class="card-body d-flex flex-column">
-                    <h3 class="h6 mb-2"><%= link_to course.title, course_path(course.id), class: "text-decoration-none text-dark" %></h3>
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <h3 class="mb-0"><%= link_to course.title, course_path(course.id), class: "text-decoration-none lms-card-title-link" %></h3>
+                      <span class="badge <%= course.pro? ? 'bg-info' : 'bg-success' %> ms-2 flex-shrink-0"><%= course.tier.capitalize %></span>
+                    </div>
                     <p class="small text-body-secondary mb-0">Creator: <%= course.creator %></p>
+                    <% if course.soft_deleted? %>
+                      <span class="badge bg-warning text-dark mt-2">This course has been removed.</span>
+                    <% end %>
                   </div>
                 </article>
               </div>
@@ -61,9 +56,12 @@
           <div class="row g-3 g-md-4">
             <% @other_courses.each do |course| %>
               <div class="col-12 col-md-6 col-xl-4">
-                <article class="course-list-card card h-100 border-0 shadow-sm">
+                <article class="course-list-card card h-100 border-0">
                   <div class="card-body d-flex flex-column">
-                    <h3 class="h6 mb-2"><%= link_to course.title, course_path(course.id), class: "text-decoration-none text-dark" %></h3>
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <h3 class="mb-0"><%= link_to course.title, course_path(course.id), class: "text-decoration-none lms-card-title-link" %></h3>
+                      <span class="badge <%= course.pro? ? 'bg-info' : 'bg-success' %> text-dark ms-2 flex-shrink-0"><%= course.tier.capitalize %></span>
+                    </div>
                     <p class="small text-body-secondary mb-0">Creator: <%= course.creator %></p>
                   </div>
                 </article>

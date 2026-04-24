@@ -1,22 +1,22 @@
-<section class="card border-0 shadow-sm">
+<section class="lms-comments card border-0 shadow-sm">
   <div class="card-header bg-white border-0 pt-3 pb-0 px-3 px-md-4">
     <h2 class="h5 mb-1">Comments</h2>
     <p class="text-body-secondary mb-3">Share feedback and collaborate on ideas.</p>
   </div>
 
-  <div class="card-body pt-0 p-3 p-md-4">
+  <div id="comments-section" class="card-body pt-0 p-3 p-md-4">
     <% if comments.any? %>
-      <ul class="list-group list-group-flush mb-4">
+      <ul class="lms-comments__list list-group list-group-flush mb-4">
         <% comments.each do |comment| %>
-          <li class="list-group-item px-0 py-3">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-2">
-              <div>
-                <p class="mb-1 fw-semibold"><%= comment.user&.profile&.username || comment.user&.profile&.name || comment.user.email %></p>
-                <p class="mb-0 text-body-secondary"><%= comment.body %></p>
+          <li class="lms-comments__item list-group-item px-0 py-3">
+            <div class="d-flex align-items-center gap-3">
+              <div class="lms-comments__content p-3 rounded-3 flex-grow-1">
+                <p class="lms-comments__author mb-1 fw-semibold"><%= comment.user&.profile&.username || comment.user&.profile&.name || comment.user.email %></p>
+                <p class="lms-comments__body mb-0 text-body-secondary"><%= comment.body %></p>
               </div>
 
               <% if current_user.present? && current_user.id == comment.user_id %>
-                <div class="d-flex flex-wrap gap-2">
+                <div class="lms-comments__actions d-flex gap-2 flex-shrink-0 p-3">
                   <% if comment.commentable_type == "Lesson" %>
                     <%= link_to "Edit", edit_course_lesson_comment_path(comment.commentable.course, comment.commentable, comment), class: "btn btn-sm btn-outline-secondary" %>
                     <%= link_to "Delete", course_lesson_comment_path(comment.commentable.course, comment.commentable, comment), data: { turbo_method: :delete, turbo_confirm: "Delete this comment?" }, class: "btn btn-sm btn-outline-danger" %>
@@ -31,21 +31,21 @@
         <% end %>
       </ul>
     <% else %>
-      <div class="rounded-3 border border-secondary-subtle bg-light p-3 mb-4">
+      <div class="lms-comments__empty rounded-3 border border-secondary-subtle bg-light p-3 mb-4">
         <p class="text-body-secondary mb-0">No comments yet.</p>
       </div>
     <% end %>
 
-    <%= form_with model: new_comment, url: comment_path, html: { class: "row g-3" } do |form| %>
-      <% if flash[:alert].present? %>
+    <%= form_with model: new_comment, url: comment_path, html: { class: "lms-comments__form row g-3" }, data: { turbo_frame: "_top" } do |form| %>
+      <% if flash[:comment_error].present? %>
         <div class="col-12">
-          <div class="alert alert-danger mb-0" role="alert"><%= flash[:alert] %></div>
+          <div class="alert alert-danger mb-0" role="alert"><%= flash[:comment_error] %></div>
         </div>
       <% end %>
 
       <div class="col-12">
         <%= form.label :body, "Add a comment", class: "form-label" %>
-        <%= form.text_area :body, class: "form-control", rows: 4 %>
+        <%= form.text_area :body, class: "form-control lms-comments__textarea", rows: 4 %>
       </div>
 
       <div class="col-12">

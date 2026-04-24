@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_04_21_095556) do
+ActiveRecord::Schema[7.0].define(version: 2026_04_22_034509) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -57,8 +57,9 @@ ActiveRecord::Schema[7.0].define(version: 2026_04_21_095556) do
     t.string "tier"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "status"
     t.string "creator"
+    t.datetime "deleted_at"
+    t.index ["deleted_at"], name: "index_courses_on_deleted_at"
   end
 
   create_table "courses_users", id: false, force: :cascade do |t|
@@ -82,7 +83,6 @@ ActiveRecord::Schema[7.0].define(version: 2026_04_21_095556) do
     t.bigint "course_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "position"
     t.index ["course_id"], name: "index_lessons_on_course_id"
   end
 
