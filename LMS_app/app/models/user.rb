@@ -3,8 +3,6 @@ class User < ApplicationRecord
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
-    enum role:{ student:"student", author:"author" }, _default: :student, _prefix: true
-    validates :role, inclusion: { in: User.roles.keys }
 
 
     has_one :profile, dependent: :destroy
@@ -16,6 +14,10 @@ class User < ApplicationRecord
 
     def self.ransackable_attributes(auth_object = nil)
         authorizable_ransackable_attributes
+    end
+
+    def self.ransackable_associations(auth_object = nil)
+        ["profile", "comments", "enrollments", "courses", "authored_courses", "subscription"]
     end
     
 end

@@ -5,7 +5,29 @@ ActiveAdmin.register User do
   #
   # Uncomment all parameters which should be permitted for assignment
   #
-  permit_params :email, :remember_created_at
+  # Prevent accidental user deletion from admin — users have cascading dependents
+  actions :all, except: [:destroy]
+
+  permit_params :email, :password, :password_confirmation, :role
+
+  form do |f|
+    f.inputs "User Details" do
+      f.input :email
+      f.input :password
+      f.input :password_confirmation
+    end
+    f.actions
+  end
+
+  controller do
+    def update
+      if params[:user][:password].blank?
+        params[:user].delete(:password)
+        params[:user].delete(:password_confirmation)
+      end
+      super
+    end
+  end
 
     index do
       column :id

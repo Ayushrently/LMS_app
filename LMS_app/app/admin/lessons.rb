@@ -5,6 +5,8 @@ ActiveAdmin.register Lesson do
   #
   # Uncomment all parameters which should be permitted for assignment
   #
+  preserve_default_filters!
+
   permit_params :title, :content, :course_id
   #
   # or
@@ -16,6 +18,8 @@ ActiveAdmin.register Lesson do
   # end
   filter :title
   filter :content
-  filter :course_id
+  filter :course_title, as: :string, label: "Course"
+
   
+  remove_filter :comments, :course
 end

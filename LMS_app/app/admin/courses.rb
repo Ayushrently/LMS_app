@@ -5,6 +5,8 @@ ActiveAdmin.register Course do
   #
   # Uncomment all parameters which should be permitted for assignment
   #
+  preserve_default_filters!
+
   permit_params :title, :description, :tier, :creator
   #
   # or
@@ -15,13 +17,34 @@ ActiveAdmin.register Course do
   #   permitted
   # end
   filter :title
-  filter :created_at
-  filter :price
-  filter :deleted_at
+  filter :authors_email, as: :string, label: "Creator Email"
+  filter :authors_profile_username, as: :string, label: "Creator Username"
+  # filter :tier, as: :select, collection: Course.tiers.keys
 
-  scope :all, default: true
+  # Disable default destroy — courses must go through soft_delete!
+  actions :all, except: [:destroy]
+
+  # scope :all, default: true
   scope :active, -> { where(deleted_at: nil) }
   scope :soft_deleted, -> { where.not(deleted_at: nil) }
+
+  batch_action :destroy, false
+
+  batch_action :soft_delete, confirm: "Soft delete selected courses?" do |ids|
+    Course.where(id: ids).each(&:soft_delete!)
+    redirect_to collection_path, notice: "Selected courses have been soft deleted."
+  end
+
+  batch_action :restore, confirm: "Restore selected courses?" do |ids|
+    Course.where(id: ids).each do |course|
+      course.update!(deleted_at: nil)
+      creator = User.find_by(id: course.creator)
+      if creator
+        course.authors << creator unless course.authors.include?(creator)
+      end
+    end
+    redirect_to collection_path, notice: "Selected courses have been restored."
+  end
 
   index do
     selectable_column
@@ -55,6 +78,18 @@ ActiveAdmin.register Course do
   member_action :soft_delete, method: :put do
     resource.soft_delete!
     redirect_to admin_courses_path, notice: "Course soft deleted."
+  end
+
+  remove_filter :enrollments, :comments, :lessons, :users, :authors
+
+  form do |f|
+    f.inputs "Course Details" do
+      f.input :title
+      f.input :description
+      f.input :tier, as: :select, collection: Course.tiers.keys
+      f.input :creator
+    end
+    f.actions
   end
 
 end

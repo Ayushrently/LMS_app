@@ -1,0 +1,15 @@
+<h2>Bulk Enroll All Users Into a Course</h2>
+
+<%= form_tag process_bulk_enroll_admin_enrollments_path, method: :post do %>
+  <div style="margin: 20px 0;">
+    <label for="course_id"><strong>Select a Course:</strong></label><br><br>
+    <%= select_tag :course_id,
+        options_from_collection_for_select(@courses, :id, :title),
+        prompt: "-- Choose a course --",
+        style: "padding: 8px; width: 300px;" %>
+  </div>
+
+  <div style="margin: 20px 0;">
+    <%= submit_tag "Enroll All Users", data: { confirm: "This will enroll all users into the selected course. Continue?" }, style: "padding: 10px 20px;" %>
+  </div>
+<% end %>
