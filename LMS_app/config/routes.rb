@@ -9,9 +9,15 @@ Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Defines the root path route ("/")
-  root "courses#index"
-  get "workspace", to: "courses#workspace"
+  authenticated :user do
+    root to: "courses#index", as: :authenticated_root
+  end
 
+  devise_scope :user do
+    root to: "devise/sessions#new"
+  end
+  
+  get "workspace", to: "courses#workspace"
   resources :courses do 
     member do
       patch :update_authors
@@ -25,6 +31,27 @@ Rails.application.routes.draw do
 
   resources :users, only: [:show] do
     resource :profile, only: [:show, :new, :create, :edit, :update]
+  end
+
+  # API routes
+  namespace :api do
+    namespace :v1 do
+      get "workspace", to: "courses#workspace"
+
+      resources :courses, except: [:new, :edit] do
+        member do
+          patch :update_authors
+        end
+        resources :lessons, except: [:new, :edit] do
+          resources :comments, except: [:new, :edit]
+        end
+        resources :comments, except: [:new, :edit]
+        resources :enrollments, only: [:create, :destroy]
+      end
+      resources :users, only: [:show] do
+        resource :profile, only: [:show, :create, :update]
+      end
+    end
   end
 
 end

@@ -8,8 +8,9 @@ class CommentsController < ApplicationController
     @comment.user = current_user
 
     if @comment.save
-      redirect_to @redirect_path
+      redirect_to @redirect_path, notice: "Comment added successfully."
     else
+      flash[:comment_error] = @comment.errors.full_messages.join(", ")
       redirect_to @redirect_path
     end
   end
@@ -20,9 +21,9 @@ class CommentsController < ApplicationController
   def update
     if @comment.update(comment_params)
       if @comment.commentable_type == "Lesson"
-        redirect_to course_lesson_path(@comment.commentable.course, @comment.commentable)
+        redirect_to course_lesson_path(@comment.commentable.course, @comment.commentable, anchor: "comments-section"), notice: "Comment updated successfully."
       else
-        redirect_to course_path(@comment.commentable)
+        redirect_to course_path(@comment.commentable, anchor: "comments-section"), notice: "Comment updated successfully."
       end
     else
       render :edit
@@ -31,7 +32,11 @@ class CommentsController < ApplicationController
 
   def destroy
     if @comment.destroy
-      redirect_back(fallback_location: course_path)
+      if @comment.commentable_type == "Lesson"
+        redirect_to course_lesson_path(@comment.commentable.course, @comment.commentable, anchor: "comments-section"), notice: "Comment deleted successfully."
+      else
+        redirect_to course_path(@comment.commentable, anchor: "comments-section"), notice: "Comment deleted successfully."
+      end
     end
   end
 
@@ -50,10 +55,10 @@ class CommentsController < ApplicationController
     if params[:lesson_id]
       @course = Course.find_by(id: params[:course_id] )
       @commentable = @course.lessons.find_by( id: params[:lesson_id] )
-      @redirect_path = course_lesson_path(@course, @commentable)
+      @redirect_path = course_lesson_path(@course, @commentable, anchor: "comments-section")
     else
       @commentable = Course.find_by(id: params[:course_id] )
-      @redirect_path = course_path(@commentable)
+      @redirect_path = course_path(@commentable, anchor: "comments-section")
     end
   end
 

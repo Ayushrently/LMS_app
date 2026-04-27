@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::Base
   helper_method :current_user_author?, :current_user_author_for?
-  before_action :authenticate_user!, unless: :devise_controller?
+  before_action :authenticate_user!, unless: -> { devise_controller? || admin_path?}
   before_action :ensure_profile_completed, if: :profile_completion_required?
 
   def current_user_author?
@@ -17,6 +17,10 @@ class ApplicationController < ActionController::Base
 
   def profile_completion_required?
     user_signed_in? && !devise_controller?
+  end
+
+  def admin_path?
+    request.path.start_with?("/admin")
   end
 
   def ensure_profile_completed
