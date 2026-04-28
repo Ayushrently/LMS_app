@@ -8,7 +8,7 @@ ActiveAdmin.register User do
   # Prevent accidental user deletion from admin — users have cascading dependents
   actions :all, except: [:destroy]
 
-  permit_params :email, :password, :password_confirmation, :role
+  permit_params :email, :password, :password_confirmation
 
   form do |f|
     f.inputs "User Details" do
@@ -50,7 +50,7 @@ ActiveAdmin.register User do
   # or
   #
   # permit_params do
-  #   permitted = [:email, :encrypted_password, :reset_password_token, :reset_password_sent_at, :remember_created_at, :role]
+  #   permitted = [:email, :encrypted_password, :reset_password_token, :reset_password_sent_at, :remember_created_at]
   #   permitted << :other if params[:action] == 'create' && current_user.admin?
   #   permitted
   # end

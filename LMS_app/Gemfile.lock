@@ -107,8 +107,6 @@ GEM
       rack-test (>= 0.6.3)
       regexp_parser (>= 1.5, < 3.0)
       xpath (~> 3.2)
-    childprocess (5.1.0)
-      logger (~> 1.5)
     concurrent-ruby (1.3.6)
     crass (1.0.6)
     csv (3.3.5)
@@ -125,6 +123,8 @@ GEM
     drb (2.2.3)
     erb (6.0.2)
     erubi (1.13.1)
+    faker (3.8.0)
+      i18n (>= 1.8.11, < 2)
     ffi (1.17.4-aarch64-linux-gnu)
     ffi (1.17.4-aarch64-linux-musl)
     ffi (1.17.4-arm-linux-gnu)
@@ -179,12 +179,6 @@ GEM
       kaminari-core (= 1.2.2)
     kaminari-core (1.2.2)
     language_server-protocol (3.17.0.5)
-    launchy (3.1.1)
-      addressable (~> 2.8)
-      childprocess (~> 5.0)
-      logger (~> 1.6)
-    letter_opener (1.10.0)
-      launchy (>= 2.2, < 4)
     lint_roller (1.1.0)
     logger (1.7.0)
     loofah (2.25.1)
@@ -400,9 +394,9 @@ DEPENDENCIES
   capybara
   debug
   devise (~> 5.0)
+  faker
   importmap-rails
   jbuilder
-  letter_opener
   pg (~> 1.1)
   puma (>= 5.0)
   rails (~> 7.0.10)

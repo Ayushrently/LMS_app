@@ -1,5 +1,5 @@
 class Api::V1::CoursesController < Api::V1::BaseController
-  before_action :set_course, only: [:show, :edit, :update, :destroy, :update_authors]
+  before_action :set_course, only: [:show, :update, :destroy, :add_authors, :remove_authors, :authors]
 
   def index
     available_courses = Course.active.select(:title, :id, :creator, :deleted_at, :tier).order(created_at: :desc).limit(20)
@@ -51,39 +51,57 @@ class Api::V1::CoursesController < Api::V1::BaseController
     head :no_content
   end
 
-  def update_authors
-    creator_username = @course.creator
-    parsed_usernames = params[:authors_csv].to_s.split(",").map(&:strip).reject(&:blank?)
-    requested_identifiers = ([creator_username] + parsed_usernames).compact.uniq
+  def add_authors
+    parsed_usernames, users_by_username = fetch_and_validate_authors
+    return if parsed_usernames.nil?
 
-    users = User.joins(:profile).where(profiles: { username: parsed_usernames }).includes(:profile)
-    users_by_username = users.index_by { |user| user.profile.username }
-    creator_user = user_from_creator_identifier(creator_username)
-    
-    ordered_users = parsed_usernames.filter_map { |username| users_by_username[username] }
-    ordered_users.unshift(creator_user) if creator_user.present?
-    ordered_users.uniq!(&:id)
+    users_to_add = parsed_usernames.map { |username| users_by_username[username] }
+    existing_author_ids = @course.author_ids
+    new_users_to_add = users_to_add.reject { |user| existing_author_ids.include?(user.id) }
 
-    current_author_ids = @course.author_ids.sort
-    next_author_ids = ordered_users.map(&:id).sort
-    authors_updated = current_author_ids != next_author_ids
-
-    @course.authors = ordered_users if authors_updated
-
-    found_identifiers = ordered_users.flat_map { |user| [user.profile&.username, user.profile&.name, user.email] }.compact
-    missing_usernames = requested_identifiers - found_identifiers
-
-    if missing_usernames.any?
-      render json: { 
-        error: "Some users not found", 
-        missing: missing_usernames,
-        updated: authors_updated 
-      }, status: :multi_status
-    elsif authors_updated
-      render json: { message: "Authors updated successfully" }, status: :ok
-    else
-      render json: { message: "No author changes were made" }, status: :ok
+    if new_users_to_add.empty?
+      render json: { message: "All provided users are already authors" }, status: :ok
+      return
     end
+
+    @course.authors << new_users_to_add
+    
+    added_usernames = new_users_to_add.map { |user| user.profile&.username }.compact
+    skipped_usernames = parsed_usernames - added_usernames
+    
+    response = { message: "Authors added successfully", added_usernames: added_usernames }
+    response[:skipped_existing_usernames] = skipped_usernames if skipped_usernames.any?
+    
+    render json: response, status: :ok
+  end
+
+  def remove_authors
+    creator_username = @course.creator
+    parsed_usernames = Array(params[:authors_csv]).map(&:to_s).map(&:strip).reject(&:blank?).uniq
+
+    if parsed_usernames.include?(creator_username)
+      render json: { error: "Creator cannot be removed from authors" }, status: :unprocessable_entity
+      return
+    end
+
+    parsed_usernames, users_by_username = fetch_and_validate_authors
+    return if parsed_usernames.nil?
+
+    users_to_remove = parsed_usernames.map { |username| users_by_username[username] }
+    @course.authors.destroy(users_to_remove)
+    render json: { message: "Authors removed successfully" }, status: :ok
+  end
+
+  def authors
+    @authors = @course.authors.select(:id, :email).map do |author|
+      {
+        id: author.id,
+        email: author.email,
+        username: author.profile&.username,
+        name: author.profile&.name
+      }
+    end
+    render json: { authors: @authors }
   end
 
   private
@@ -96,6 +114,24 @@ class Api::V1::CoursesController < Api::V1::BaseController
 
   def course_params
     params.require(:course).permit(:title, :description, :tier)
+  end
+
+  def fetch_and_validate_authors
+    parsed_usernames = Array(params[:authors_csv]).map(&:to_s).map(&:strip).reject(&:blank?).uniq
+    if parsed_usernames.empty?
+      render json: { error: "No valid author usernames provided" }, status: :unprocessable_entity
+      return [nil, nil]
+    end
+    users = User.joins(:profile).where(profiles: { username: parsed_usernames }).includes(:profile)
+    users_by_username = users.index_by { |user| user.profile.username }
+    missing_usernames = parsed_usernames - users_by_username.keys
+
+    if missing_usernames.any?
+      render json: { error: "Some users not found", missing: missing_usernames }, status: :unprocessable_entity
+      return [nil, nil]
+    end
+
+    [parsed_usernames, users_by_username]
   end
 
 end
