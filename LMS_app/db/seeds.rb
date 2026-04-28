@@ -1,6 +1,11 @@
 # Seed script for LMS demo data.
 # Usage: bin/rails db:seed
 
+require "faker"
+require "set"
+
+Faker::Config.random = Random.new(42)
+
 puts "Cleaning existing data..."
 
 ActiveAdmin::Comment.delete_all if defined?(ActiveAdmin::Comment)
@@ -16,181 +21,209 @@ AdminUser.delete_all if defined?(AdminUser)
 
 puts "Creating users, profiles, and subscriptions..."
 
-password = "password123"
-role_column_present = User.column_names.include?("role")
+AUTHOR_COUNT = 12
+STUDENT_COUNT = 30
+COURSE_COUNT = 18
+LESSONS_PER_COURSE = 4
+COMMENTS_COUNT = 80
+MIN_STUDENT_COURSES = 3
+MAX_STUDENT_COURSES = 6
+PASSWORD = "password123"
 
-author_payloads = [
-	{ email: "alice.author@example.com", name: "Alice Writer", username: "alicewriter", bio: "Backend and systems-focused course creator.", plan: "pro" },
-	{ email: "bob.author@example.com", name: "Bob Mentor", username: "bobmentor", bio: "Teaches practical coding and debugging.", plan: "pro" },
-	{ email: "cara.author@example.com", name: "Cara Builder", username: "carabuilder", bio: "Builds full-stack learning paths for beginners.", plan: "pro" },
-	{ email: "dan.author@example.com", name: "Dan Architect", username: "danarchitect", bio: "Designs scalable architecture content.", plan: "basic" },
-	{ email: "eva.author@example.com", name: "Eva Coach", username: "evacoach", bio: "Focused on productivity and clean code.", plan: "basic" }
-]
-
-student_payloads = [
-	{ email: "sam.student@example.com", name: "Sam Learner", username: "samlearner", bio: "Interested in web development basics.", plan: "basic" },
-	{ email: "tina.student@example.com", name: "Tina Student", username: "tinastudent", bio: "Learning Ruby and Rails step by step.", plan: "basic" },
-	{ email: "umar.student@example.com", name: "Umar Trainee", username: "umartrainee", bio: "Practicing with project-based courses.", plan: "basic" },
-	{ email: "vera.student@example.com", name: "Vera Newbie", username: "veranewbie", bio: "Exploring backend fundamentals.", plan: "pro" },
-	{ email: "will.student@example.com", name: "Will Rookie", username: "willrookie", bio: "Trying to become a junior developer.", plan: "pro" }
-]
-
-authors = author_payloads.map do |payload|
-	attrs = {
-		email: payload[:email],
-		password: password,
-		password_confirmation: password
-	}
-	attrs[:role] = "author" if role_column_present
-
-	user = User.create!(attrs)
-	profile = Profile.create!(
-		user: user,
-		name: payload[:name],
-		username: payload[:username],
-		bio: payload[:bio]
-	)
-	Subscription.create!(profile: profile, plan_name: payload[:plan])
-	user
+clamp_text = lambda do |text, min:, max:|
+  cleaned = text.to_s.gsub(/\s+/, " ").strip
+  cleaned = cleaned[0, max] if cleaned.length > max
+  if cleaned.length < min
+    cleaned = cleaned.ljust(min, "x")
+  end
+  cleaned
 end
 
-students = student_payloads.map do |payload|
-	attrs = {
-		email: payload[:email],
-		password: password,
-		password_confirmation: password
-	}
-	attrs[:role] = "student" if role_column_present
+used_usernames = Set.new
+next_username = lambda do |seed_text|
+  base = seed_text.to_s.downcase.gsub(/[^a-z0-9]/, "")[0, 16]
+  base = "user#{Faker::Config.random.rand(1000..9999)}" if base.length < 3
 
-	user = User.create!(attrs)
-	profile = Profile.create!(
-		user: user,
-		name: payload[:name],
-		username: payload[:username],
-		bio: payload[:bio]
-	)
-	Subscription.create!(profile: profile, plan_name: payload[:plan])
-	user
+  candidate = base
+  suffix = 1
+  while used_usernames.include?(candidate)
+    suffix_str = suffix.to_s
+    candidate = "#{base[0, 20 - suffix_str.length]}#{suffix_str}"
+    suffix += 1
+  end
+
+  used_usernames << candidate
+  candidate
 end
 
-puts "Creating courses and lessons..."
+build_people_payload = lambda do |kind, count:|
+  Array.new(count) do |idx|
+    first_name = Faker::Name.first_name
+    last_name = Faker::Name.last_name
+    name = clamp_text.call("#{first_name} #{last_name[0]}", min: 3, max: 20)
+    username = next_username.call("#{first_name}#{last_name}#{kind}#{idx}")
+    email = "#{username}.#{kind}@example.com"
+    bio = clamp_text.call(Faker::Lorem.paragraph(sentence_count: 2), min: 20, max: 500)
+    plan = %w[basic pro].sample(random: Faker::Config.random)
 
-course_payloads = [
-	{
-		title: "Ruby Basics",
-		description: "Start your Ruby journey with syntax, control flow, and simple object-oriented patterns.",
-		tier: "free",
-		creator: authors[0].profile.username,
-		primary_author: authors[0],
-		collaborators: [authors[1], authors[2]],
-		lessons: [
-			{ title: "Ruby Intro", content: "Learn Ruby syntax, variables, and conditional logic with practical examples." },
-			{ title: "Ruby OOP", content: "Understand classes, objects, and method design while building simple features." }
-		]
-	},
-	{
-		title: "Rails Essentials",
-		description: "Build and ship a Rails app using MVC, routing, controllers, and Active Record.",
-		tier: "pro",
-		creator: authors[1].profile.username,
-		primary_author: authors[1],
-		collaborators: [authors[3]],
-		lessons: [
-			{ title: "Rails MVC", content: "Understand the Rails request flow and how models, views, and controllers connect." },
-			{ title: "Rails Models", content: "Design database-backed models with validations, associations, and query scopes." }
-		]
-	},
-	{
-		title: "Testing Rails",
-		description: "Write dependable tests for models and controllers to keep your app stable as it grows.",
-		tier: "pro",
-		creator: authors[2].profile.username,
-		primary_author: authors[2],
-		collaborators: [authors[0]],
-		lessons: [
-			{ title: "Model Tests", content: "Create robust model tests with edge cases, validations, and association coverage." },
-			{ title: "Ctrl Tests", content: "Test controller behavior and responses to keep application endpoints reliable." }
-		]
-	},
-	{
-		title: "API Design",
-		description: "Learn to design clear API endpoints with versioning, authentication, and response standards.",
-		tier: "free",
-		creator: authors[3].profile.username,
-		primary_author: authors[3],
-		collaborators: [authors[4]],
-		lessons: [
-			{ title: "API Basics", content: "Define resources, verbs, and status codes to create predictable APIs." },
-			{ title: "API Secure", content: "Apply authentication and input validation to keep APIs protected and stable." }
-		]
-	},
-	{
-		title: "SQL for Rails",
-		description: "Improve Rails performance with SQL fundamentals, indexing strategy, and query analysis.",
-		tier: "pro",
-		creator: authors[4].profile.username,
-		primary_author: authors[4],
-		collaborators: [authors[1], authors[2]],
-		lessons: [
-			{ title: "SQL Intro", content: "Use filtering, sorting, and joins to fetch useful data from relational databases." },
-			{ title: "SQL Index", content: "Apply indexing and query planning techniques to improve data access speed." }
-		]
-	}
-]
+    {
+      email: email,
+      name: name,
+      username: username,
+      bio: bio,
+      plan: plan
+    }
+  end
+end
 
-courses = course_payloads.map do |payload|
-	course = Course.create!(
-		title: payload[:title],
-		description: payload[:description],
-		tier: payload[:tier],
-		creator: payload[:creator]
-	)
+author_payloads = build_people_payload.call("author", count: AUTHOR_COUNT)
+student_payloads = build_people_payload.call("student", count: STUDENT_COUNT)
 
-	# Adding authors triggers callbacks that also ensure author enrollments.
-	course.authors << payload[:primary_author]
-	payload[:collaborators].each { |author| course.authors << author }
+# 1) Users
+author_users = author_payloads.map do |payload|
+  User.create!(
+    email: payload[:email],
+    password: PASSWORD,
+    password_confirmation: PASSWORD
+  )
+end
 
-	# Enforce that every course author is enrolled, even if callbacks are changed/bypassed.
-	authors_for_course = [payload[:primary_author], *payload[:collaborators]].uniq
-	authors_for_course.each do |author|
-		enrollment = Enrollment.find_or_create_by!(user: author, course: course)
-		enrollment.update!(enrolled_at: Time.current) if enrollment.enrolled_at.nil?
-	end
+student_users = student_payloads.map do |payload|
+  User.create!(
+    email: payload[:email],
+    password: PASSWORD,
+    password_confirmation: PASSWORD
+  )
+end
 
-	payload[:lessons].each do |lesson_attrs|
-		Lesson.create!(course: course, title: lesson_attrs[:title], content: lesson_attrs[:content])
-	end
+# 2) Profiles
+author_profiles = author_users.zip(author_payloads).map do |user, payload|
+  Profile.create!(
+    user: user,
+    name: payload[:name],
+    username: payload[:username],
+    bio: payload[:bio]
+  )
+end
 
-	course
+student_profiles = student_users.zip(student_payloads).map do |user, payload|
+  Profile.create!(
+    user: user,
+    name: payload[:name],
+    username: payload[:username],
+    bio: payload[:bio]
+  )
+end
+
+# 3) Subscriptions
+author_profiles.zip(author_payloads).each do |profile, payload|
+  Subscription.create!(profile: profile, plan_name: payload[:plan])
+end
+
+student_profiles.zip(student_payloads).each do |profile, payload|
+  Subscription.create!(profile: profile, plan_name: payload[:plan])
+end
+
+authors = author_users
+students = student_users
+
+puts "Creating courses, lessons, and enrollments..."
+
+used_course_titles = Set.new
+next_course_title = lambda do
+  20.times do
+    raw = Faker::Educator.course_name
+    normalized = clamp_text.call(raw, min: 5, max: 100)
+    key = normalized.downcase
+    next if used_course_titles.include?(key)
+
+    used_course_titles << key
+    return normalized
+  end
+
+  fallback = "Course #{used_course_titles.size + 1}"
+  used_course_titles << fallback.downcase
+  fallback
+end
+
+courses = Array.new(COURSE_COUNT).map do
+  primary_author = authors.sample(random: Faker::Config.random)
+  collaborator_count = Faker::Config.random.rand(1..2)
+  collaborators = authors.sample(collaborator_count, random: Faker::Config.random)
+  authors_for_course = ([primary_author] + collaborators).uniq
+
+  course = Course.create!(
+    title: next_course_title.call,
+    description: clamp_text.call(Faker::Lorem.paragraph(sentence_count: 4), min: 10, max: 600),
+    tier: %w[free pro].sample(random: Faker::Config.random),
+    creator: primary_author.profile.username
+  )
+
+  # Deduped insert prevents duplicate rows in courses_users.
+  authors_for_course.each { |author| course.authors << author }
+
+  # Enforce that every course author is enrolled, even if callbacks are changed/bypassed.
+  authors_for_course.each do |author|
+    enrollment = Enrollment.find_or_create_by!(user: author, course: course)
+    enrollment.update!(enrolled_at: Time.current) if enrollment.enrolled_at.nil?
+  end
+
+  used_lesson_titles = Set.new
+  LESSONS_PER_COURSE.times do
+    lesson_title = nil
+
+    20.times do
+      raw_title = "#{Faker::Verb.base.capitalize} #{Faker::ProgrammingLanguage.name}".gsub(/[^a-zA-Z0-9 ]/, "")
+      candidate = clamp_text.call(raw_title, min: 5, max: 20)
+      next if used_lesson_titles.include?(candidate.downcase)
+
+      lesson_title = candidate
+      used_lesson_titles << candidate.downcase
+      break
+    end
+
+    lesson_title ||= "Lesson#{used_lesson_titles.size + 1}"
+
+    Lesson.create!(
+      course: course,
+      title: lesson_title,
+      content: clamp_text.call(Faker::Lorem.paragraph(sentence_count: 3), min: 20, max: 1000)
+    )
+  end
+
+  course
 end
 
 puts "Creating student enrollments..."
 
-enrollment_map = {
-	students[0] => [courses[0], courses[1], courses[3]],
-	students[1] => [courses[0], courses[2]],
-	students[2] => [courses[1], courses[4]],
-	students[3] => [courses[2], courses[3], courses[4]],
-	students[4] => [courses[0], courses[4]]
-}
-
-enrollment_map.each do |student, selected_courses|
-	selected_courses.each do |course|
-		Enrollment.find_or_create_by!(user: student, course: course) do |enrollment|
-			enrollment.enrolled_at = Time.current
-		end
-	end
+students.each do |student|
+  selected_courses = courses.sample(Faker::Config.random.rand(MIN_STUDENT_COURSES..MAX_STUDENT_COURSES), random: Faker::Config.random)
+  selected_courses.each do |course|
+    enrollment = Enrollment.find_or_create_by!(user: student, course: course)
+    enrollment.update!(enrolled_at: Time.current) if enrollment.enrolled_at.nil?
+  end
 end
 
 puts "Creating comments for activity..."
 
-Comment.create!(user: students[0], commentable: courses[0], body: "This course is clear and very easy to follow.")
-Comment.create!(user: students[3], commentable: courses[1], body: "Loved the examples and practical structure in each lesson.")
-Comment.create!(user: authors[2], commentable: courses[4], body: "We will add an advanced query optimization module soon.")
-Comment.create!(user: students[2], commentable: courses[2].lessons.first, body: "The testing examples helped me understand assertions better.")
+comment_targets = courses + courses.flat_map(&:lessons)
+comment_authors = authors + students
 
-AdminUser.create!(email: "admin@example.com", password: "password", password_confirmation: "password")
+COMMENTS_COUNT.times do
+  Comment.create!(
+    user: comment_authors.sample(random: Faker::Config.random),
+    commentable: comment_targets.sample(random: Faker::Config.random),
+    body: clamp_text.call(Faker::Lorem.sentence(word_count: 14), min: 5, max: 1000)
+  )
+end
+
+AdminUser.create!(
+  email: "admin@example.com",
+  password: "password123",
+  password_confirmation: "password123"
+)
 
 puts "Seeding complete."
 puts "Users: #{User.count} (Authors: #{authors.count}, Students: #{students.count})"
-puts "Courses: #{Course.count}, Lessons: #{Lesson.count}, Enrollments: #{Enrollment.count}"
+puts "Profiles: #{Profile.count}, Subscriptions: #{Subscription.count}"
+puts "Courses: #{Course.count}, Lessons: #{Lesson.count}, Enrollments: #{Enrollment.count}, Comments: #{Comment.count}"

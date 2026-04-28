@@ -5,7 +5,6 @@ class UserFlowTest < ActionDispatch::IntegrationTest
     post users_path, params: {
       user: {
         email: "learner@example.com",
-        role: "student"
       }
     }
 

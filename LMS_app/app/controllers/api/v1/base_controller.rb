@@ -5,8 +5,13 @@ module Api
       # rescue_from StandardError, with: :handle_server_error
       # rescue_from ActiveRecord::RecordNotFound, with: :handle_not_found
       # rescue_from ActiveRecord::RecordInvalid, with: :handle_invalid
+      rescue_from ActiveRecord::RecordNotFound, with: :bad_request
 
-      # private
+      private
+      
+      def bad_request(exception)
+        render json: { error: exception.message }, status: :bad_request
+      end
 
       # def handle_not_found(exception)
       #   render json: { error: exception.message }, status: :not_found

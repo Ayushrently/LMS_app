@@ -64,6 +64,7 @@ class CoursesController < ApplicationController
         ordered_users = parsed_usernames.filter_map { |username| users_by_username[username] }
         ordered_users.unshift(creator_user) if creator_user.present?
         ordered_users.uniq!(&:id)
+
         current_author_ids = @course.author_ids.sort
         next_author_ids = ordered_users.map(&:id).sort
         authors_updated = current_author_ids != next_author_ids
@@ -107,7 +108,7 @@ class CoursesController < ApplicationController
         return nil if identifier.blank?
 
         User
-            .left_joins(:profile)
+            .joins(:profile)
             .includes(:profile)
             .find_by("profiles.username = :value OR profiles.name = :value OR users.email = :value", value: identifier)
     end

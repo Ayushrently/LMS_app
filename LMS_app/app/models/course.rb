@@ -10,6 +10,7 @@ class Course < ApplicationRecord
     has_and_belongs_to_many :authors,
                             class_name: 'User',
                             join_table: :courses_users,
+                            before_add: :prevent_duplicate_author,
                             after_add: :ensure_author_enrollment,
                             before_remove: :prevent_creator_author_removal,
                             after_remove: :remove_author_enrollment
@@ -46,6 +47,13 @@ class Course < ApplicationRecord
 
     def ensure_author_enrollment(author)
         enrollments.find_or_create_by(user: author)
+    end
+
+    def prevent_duplicate_author(author)
+        return unless authors.exists?(author.id)
+
+        errors.add(:authors, "already includes this user")
+        throw(:abort)
     end
 
     def prevent_creator_author_removal(author)

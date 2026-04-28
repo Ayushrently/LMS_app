@@ -40,7 +40,9 @@ Rails.application.routes.draw do
 
       resources :courses, except: [:new, :edit] do
         member do
-          patch :update_authors
+          get :authors
+          patch :add_authors
+          patch :remove_authors
         end
         resources :lessons, except: [:new, :edit] do
           resources :comments, except: [:new, :edit]
