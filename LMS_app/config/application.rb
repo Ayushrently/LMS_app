@@ -19,11 +19,5 @@ module LMSApp
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
     # config/application.rb
-    config.generators do |g|
-      g.helper false
-      g.assets false
-      g.template_engine false # Stops the creation of the views folder
-      g.stylesheets false
-    end
   end
 end

@@ -1,5 +1,6 @@
 class Api::V1::CoursesController < Api::V1::BaseController
   before_action :set_course, only: [:show, :update, :destroy, :add_authors, :remove_authors, :authors]
+  before_action :require_course_author!, only: [:add_authors, :remove_authors, :update, :destroy]
 
   def index
     available_courses = Course.active.select(:title, :id, :creator, :deleted_at, :tier).order(created_at: :desc).limit(20)
@@ -15,11 +16,9 @@ class Api::V1::CoursesController < Api::V1::BaseController
 
   def show
     @enrollment = Enrollment.find_by(user_id: current_user&.id, course_id: @course.id)
-    @comments = @course.comments.order(created_at: :desc).limit(10)
     render json: {
       course: @course.as_json(only: [:id, :title, :creator, :deleted_at, :tier]),
       enrollment_status: @enrollment.present? ? "enrolled" : "not_enrolled",
-      comments: @comments.as_json(only: [:id, :content, :user_id, :created_at])
     }
   end
 
@@ -54,9 +53,8 @@ class Api::V1::CoursesController < Api::V1::BaseController
   def add_authors
     parsed_usernames, users_by_username = fetch_and_validate_authors
     return if parsed_usernames.nil?
-
-    users_to_add = parsed_usernames.map { |username| users_by_username[username] }
     existing_author_ids = @course.author_ids
+    users_to_add = parsed_usernames.map { |username| users_by_username[username] }
     new_users_to_add = users_to_add.reject { |user| existing_author_ids.include?(user.id) }
 
     if new_users_to_add.empty?
