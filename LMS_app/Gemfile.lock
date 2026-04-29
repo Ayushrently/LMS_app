@@ -120,6 +120,8 @@ GEM
       railties (>= 7.0)
       responders
       warden (~> 1.2.3)
+    doorkeeper (5.9.0)
+      railties (>= 5)
     drb (2.2.3)
     erb (6.0.2)
     erubi (1.13.1)
@@ -394,9 +396,11 @@ DEPENDENCIES
   capybara
   debug
   devise (~> 5.0)
+  doorkeeper (~> 5.9)
   faker
   importmap-rails
   jbuilder
+  kaminari
   pg (~> 1.1)
   puma (>= 5.0)
   rails (~> 7.0.10)

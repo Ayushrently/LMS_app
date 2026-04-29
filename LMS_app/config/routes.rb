@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  use_doorkeeper
   devise_for :admin_users, ActiveAdmin::Devise.config
   ActiveAdmin.routes(self)
   devise_for :users
@@ -22,7 +23,7 @@ Rails.application.routes.draw do
     member do
       patch :update_authors
     end
-    resources :lessons, except: [:index] do
+    resources :lessons do
       resources :comments, only: [:create, :edit, :update, :destroy]
     end
     resources :comments, only: [:create, :edit, :update, :destroy]
