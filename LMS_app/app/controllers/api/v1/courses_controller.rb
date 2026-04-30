@@ -1,6 +1,7 @@
 class Api::V1::CoursesController < Api::V1::BaseController
   before_action :set_course, only: [:show, :update, :destroy, :add_authors, :remove_authors, :authors]
   before_action :require_course_author!, only: [:add_authors, :remove_authors, :update, :destroy]
+  before_action -> {doorkeeper_authorize! :course_access}, only: [:remove_authors, :update, :destroy, :add_authors]
 
   def index
     available_courses = Course.active.select(:title, :id, :creator, :deleted_at, :tier).order(created_at: :desc).limit(20)

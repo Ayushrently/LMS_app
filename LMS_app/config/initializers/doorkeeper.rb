@@ -21,7 +21,10 @@ Doorkeeper.configure do
   # See: https://guides.rubyonrails.org/active_record_multiple_databases.html#activating-automatic-role-switching
 
   # This block will be called to check whether the resource owner is authenticated or not.
-  grant_flows %w(password)
+  use_refresh_token
+  grant_flows %w(password refresh_token)
+  skip_client_authentication_for_password_grant true
+  access_token_expires_in 30.seconds
 
   resource_owner_from_credentials do |_routes|
     user = User.find_for_database_authentication(email: params[:email])
@@ -32,6 +35,9 @@ Doorkeeper.configure do
       nil
     end
   end
+  default_scopes :public
+
+  optional_scopes :course_access, :profile_access, :lesson_access
 
   # If you didn't skip applications controller from Doorkeeper routes in your application routes.rb
   # file then you need to declare this block in order to restrict access to the web interface for

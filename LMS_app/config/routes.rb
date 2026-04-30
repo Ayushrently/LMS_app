@@ -49,7 +49,7 @@ Rails.application.routes.draw do
           resources :comments, except: [:new, :edit]
         end
         resources :comments, except: [:new, :edit]
-        resources :enrollments, only: [:create, :destroy]
+        resource :enrollment, only: [:create, :destroy]
       end
       resources :users, only: [:show] do
         resource :profile, only: [:show, :create, :update]
