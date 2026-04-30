@@ -8,6 +8,11 @@ class Api::V1::CommentsController < Api::V1::BaseController
         @comment = @commentable.comments.build(comment_params)
         @comment.user = current_user
 
+        if @commentable.is_a?(Lesson) && !Enrollment.exists?(user_id: current_user.id, course_id: @course.id)
+          render json: { error: "You must be enrolled in the course to comment on this lesson" }, status: :forbidden
+          return
+        end
+
         if @comment.save
             render json: @comment.as_json(only: [:id, :body, :user_id, :commentable_type, :commentable_id]), status: :created
         else
@@ -44,7 +49,7 @@ class Api::V1::CommentsController < Api::V1::BaseController
 
     def ensure_author_for_comment!
         return if @comment.user_id == current_user&.id
-        render json: { error: "Unauthorized" }, status: :unauthorized
+        render json: { error: "Not the author of the comment" }, status: :unauthorized
     end
 
     def set_commentable

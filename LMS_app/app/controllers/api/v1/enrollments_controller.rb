@@ -18,24 +18,29 @@ class Api::V1::EnrollmentsController < Api::V1::BaseController
     end
 
     def destroy
-        if @enrollment.destroy
-            head :no_content
-        else
-            render json: { errors: "Failed to unenroll" }, status: :unprocessable_entity
-        end
+      if @course.creator == current_user.profile.username || @course.authors.exists?(id: current_user.id)
+        render json: { error: "Authors cannot unenroll from their own course" }, status: :forbidden
+        return
+      end
+
+      if @enrollment.destroy
+          head :no_content
+      else
+          render json: { errors: "Failed to unenroll" }, status: :unprocessable_entity
+      end
     end
 
     private
 
     def set_course
-        @course = Course.find_by(id: params[:course_id])
+        @course = Course.active.find_by(id: params[:course_id])
         return if @course
 
         render json: { error: "Course not found" }, status: :not_found
     end
 
     def set_enrollment
-        @enrollment = @course.enrollments.find_by(id: params[:id], user_id: current_user&.id)
+        @enrollment = @course.enrollments.find_by(user_id: current_user&.id)
         return if @enrollment
 
         render json: { error: "Enrollment not found" }, status: :not_found
