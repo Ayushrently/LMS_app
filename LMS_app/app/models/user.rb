@@ -1,8 +1,8 @@
 class User < ApplicationRecord
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
-  devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable
+    # Include default devise modules. Others available are:
+    # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
+    devise :database_authenticatable, :registerable,
+            :recoverable, :rememberable, :validatable
 
 
     has_one :profile, dependent: :destroy
@@ -13,7 +13,7 @@ class User < ApplicationRecord
     has_and_belongs_to_many :authored_courses, class_name: 'Course', join_table: :courses_users
 
     def self.ransackable_attributes(auth_object = nil)
-        authorizable_ransackable_attributes
+        ["id", "email", "created_at", "updated_at"]
     end
 
     def self.ransackable_associations(auth_object = nil)
