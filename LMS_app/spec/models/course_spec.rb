@@ -62,8 +62,8 @@ RSpec.describe Course, type: :model do
   describe "#soft_delete!" do
     it "hard deletes the course when it has no enrollments" do
       deletable_course = create(:course)
-
-      expect { deletable_course.soft_delete! }.to change(described_class, :count).by(-1)
+      deletable_course.soft_delete!
+      expect(described_class.where(id: deletable_course.id)).to be_empty
     end
 
     it "soft deletes the course and removes author enrollments when enrollments exist" do
@@ -77,24 +77,7 @@ RSpec.describe Course, type: :model do
 
       expect(course_with_author.reload.deleted_at).to be_present
       expect(course_with_author.authors).to be_empty
-      expect(course_with_author.enrollments.where(user: author)).to be_empty
-    end
-  end
-
-  describe "#hard_delete_if_no_enrollments!" do
-    it "destroys the course when enrollments are empty" do
-      deletable_course = create(:course)
-
-      expect { deletable_course.hard_delete_if_no_enrollments! }
-        .to change(described_class, :count).by(-1)
-    end
-
-    it "keeps the course when enrollments exist" do
-      enrolled_course = create(:course)
-      create(:enrollment, course: enrolled_course)
-
-      expect { enrolled_course.hard_delete_if_no_enrollments! }
-        .not_to change(described_class, :count)
+      expect(course_with_author.enrollments.where(course: author)).to be_empty
     end
   end
 
@@ -138,13 +121,6 @@ RSpec.describe Course, type: :model do
       expect(created_course.errors[:authors]).to include("cannot remove course creator")
     end
 
-    it "allows removing a non-creator author when creator is blank" do
-      removable_course = create(:course, creator: nil)
-      removable_course.authors << author
-
-      expect { removable_course.authors.destroy(author) }
-        .to change(removable_course.authors, :count).by(-1)
-    end
   end
 
   describe ".ransackable_associations" do

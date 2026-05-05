@@ -40,9 +40,9 @@ FactoryBot.define do
   factory :profile do
     association :user
     bio { Faker::Lorem.sentence }
-    name { Faker::Internet.username }
-    username { Faker::Internet.username }
-    
+    sequence(:name) { |n| "name#{n}" }
+    sequence(:username) { |n| "user#{n}" }
+
     trait :pro do
       after(:create) do |profile|
         create(:subscription, profile: profile, plan_name: "pro")
@@ -54,4 +54,10 @@ FactoryBot.define do
     association :profile
     plan_name { "basic" }
   end
+
+  # factory :comment do
+  #   association :user
+  #   commentable { association :course }
+  #   body { Faker::Lorem.paragraph(sentence_count: 2) }
+  # end
 end

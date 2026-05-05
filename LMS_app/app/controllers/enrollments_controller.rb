@@ -16,7 +16,7 @@ class EnrollmentsController < ApplicationController
   def destroy
     enrollment = @course.enrollments.find_by(user_id: current_user.id)
     if enrollment&.destroy
-      @course.hard_delete_if_no_enrollments! if @course.soft_deleted?
+      @course.soft_delete! if @course.soft_deleted?
       redirect_to courses_path(@course)
     else
       redirect_to course_path(@course)
