@@ -35,10 +35,6 @@ class Course < ApplicationRecord
         end
     end
 
-    def hard_delete_if_no_enrollments!
-        destroy if enrollments.empty?
-    end
-
     private
 
     def remove_author_enrollment(author)

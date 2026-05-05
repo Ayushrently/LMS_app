@@ -1,25 +1,27 @@
 class Api::V1::CoursesController < Api::V1::BaseController
-  before_action :set_course, only: [:show, :update, :destroy, :add_authors, :remove_authors, :authors]
-  before_action :require_course_author!, only: [:add_authors, :remove_authors, :update, :destroy]
-  before_action -> {doorkeeper_authorize! :course_access}, only: [:remove_authors, :update, :destroy, :add_authors]
+  before_action :set_course, only: %i[show update destroy add_authors remove_authors authors]
+  before_action :require_course_author!, only: %i[add_authors remove_authors update destroy]
+  before_action -> { doorkeeper_authorize! :course_access }, only: %i[remove_authors update destroy add_authors]
 
   def index
-    available_courses = Course.active.select(:title, :id, :creator, :deleted_at, :tier).order(created_at: :desc).limit(20)
+    available_courses = Course.active.select(:title, :id, :creator, :deleted_at,
+                                             :tier).order(created_at: :desc).limit(20)
     authored_course_ids = Course.joins(:authors).where(users: { id: current_user.id }).select(:id)
     enrolled_course_ids = Enrollment.where(user_id: current_user.id).select(:course_id)
-    @enrolled_courses = Course.where(id: enrolled_course_ids).where.not(id: authored_course_ids).select(:title, :id, :creator, :deleted_at, :tier).order(created_at: :desc)
+    @enrolled_courses = Course.where(id: enrolled_course_ids).where.not(id: authored_course_ids).select(:title, :id,
+                                                                                                        :creator, :deleted_at, :tier).order(created_at: :desc)
     @other_courses = available_courses.where.not(id: enrolled_course_ids).where.not(id: authored_course_ids)
     render json: {
-      enrolled_courses: @enrolled_courses.as_json(only: [:id, :title, :creator, :deleted_at, :tier]),
-      other_courses: @other_courses.as_json(only: [:id, :title, :creator, :deleted_at, :tier])
+      enrolled_courses: @enrolled_courses.as_json(only: %i[id title creator deleted_at tier]),
+      other_courses: @other_courses.as_json(only: %i[id title creator deleted_at tier])
     }
   end
 
   def show
     @enrollment = Enrollment.find_by(user_id: current_user&.id, course_id: @course.id)
     render json: {
-      course: @course.as_json(only: [:id, :title, :creator, :deleted_at, :tier]),
-      enrollment_status: @enrollment.present? ? "enrolled" : "not_enrolled",
+      course: @course.as_json(only: %i[id title creator deleted_at tier]),
+      enrollment_status: @enrollment.present? ? 'enrolled' : 'not_enrolled'
     }
   end
 
@@ -28,7 +30,7 @@ class Api::V1::CoursesController < Api::V1::BaseController
     @course.creator = current_user.profile.username
     if @course.save
       @course.authors << current_user
-      render json: @course.as_json(only: [:id, :title, :creator, :deleted_at, :tier]), status: :created
+      render json: @course.as_json(only: %i[id title creator deleted_at tier]), status: :created
     else
       render json: { errors: @course.errors.full_messages }, status: :unprocessable_entity
     end
@@ -36,7 +38,7 @@ class Api::V1::CoursesController < Api::V1::BaseController
 
   def update
     if @course.update(course_params)
-      render json: @course.as_json(only: [:id, :title, :creator, :deleted_at, :tier])
+      render json: @course.as_json(only: %i[id title creator deleted_at tier])
     else
       render json: { errors: @course.errors.full_messages }, status: :unprocessable_entity
     end
@@ -54,23 +56,24 @@ class Api::V1::CoursesController < Api::V1::BaseController
   def add_authors
     parsed_usernames, users_by_username = fetch_and_validate_authors
     return if parsed_usernames.nil?
+
     existing_author_ids = @course.author_ids
     users_to_add = parsed_usernames.map { |username| users_by_username[username] }
     new_users_to_add = users_to_add.reject { |user| existing_author_ids.include?(user.id) }
 
     if new_users_to_add.empty?
-      render json: { message: "All provided users are already authors" }, status: :ok
+      render json: { message: 'All provided users are already authors' }, status: :ok
       return
     end
 
     @course.authors << new_users_to_add
-    
-    added_usernames = new_users_to_add.map { |user| user.profile&.username }.compact
+
+    added_usernames = new_users_to_add.filter_map { |user| user.profile&.username }
     skipped_usernames = parsed_usernames - added_usernames
-    
-    response = { message: "Authors added successfully", added_usernames: added_usernames }
+
+    response = { message: 'Authors added successfully', added_usernames: added_usernames }
     response[:skipped_existing_usernames] = skipped_usernames if skipped_usernames.any?
-    
+
     render json: response, status: :ok
   end
 
@@ -79,7 +82,7 @@ class Api::V1::CoursesController < Api::V1::BaseController
     parsed_usernames = Array(params[:authors_csv]).map(&:to_s).map(&:strip).reject(&:blank?).uniq
 
     if parsed_usernames.include?(creator_username)
-      render json: { error: "Creator cannot be removed from authors" }, status: :unprocessable_entity
+      render json: { error: 'Creator cannot be removed from authors' }, status: :unprocessable_entity
       return
     end
 
@@ -88,7 +91,7 @@ class Api::V1::CoursesController < Api::V1::BaseController
 
     users_to_remove = parsed_usernames.map { |username| users_by_username[username] }
     @course.authors.destroy(users_to_remove)
-    render json: { message: "Authors removed successfully" }, status: :ok
+    render json: { message: 'Authors removed successfully' }, status: :ok
   end
 
   def authors
@@ -108,7 +111,7 @@ class Api::V1::CoursesController < Api::V1::BaseController
   def set_course
     @course = Course.find(params[:id])
   rescue ActiveRecord::RecordNotFound
-    render json: { error: "Course not found" }, status: :not_found
+    render json: { error: 'Course not found' }, status: :not_found
   end
 
   def course_params
@@ -118,7 +121,7 @@ class Api::V1::CoursesController < Api::V1::BaseController
   def fetch_and_validate_authors
     parsed_usernames = Array(params[:authors_csv]).map(&:to_s).map(&:strip).reject(&:blank?).uniq
     if parsed_usernames.empty?
-      render json: { error: "No valid author usernames provided" }, status: :unprocessable_entity
+      render json: { error: 'No valid author usernames provided' }, status: :unprocessable_entity
       return [nil, nil]
     end
     users = User.joins(:profile).where(profiles: { username: parsed_usernames }).includes(:profile)
@@ -126,11 +129,10 @@ class Api::V1::CoursesController < Api::V1::BaseController
     missing_usernames = parsed_usernames - users_by_username.keys
 
     if missing_usernames.any?
-      render json: { error: "Some users not found", missing: missing_usernames }, status: :unprocessable_entity
+      render json: { error: 'Some users not found', missing: missing_usernames }, status: :unprocessable_entity
       return [nil, nil]
     end
 
     [parsed_usernames, users_by_username]
   end
-
 end

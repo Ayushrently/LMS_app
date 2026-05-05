@@ -8,11 +8,11 @@ class Profile < ApplicationRecord
 
   accepts_nested_attributes_for :subscription, update_only: true
 
-  def self.ransackable_attributes(auth_object = nil)
-    ["name", "username", "bio", "created_at", "updated_at", "id", "user_id"]
+  def self.ransackable_attributes(*)
+    %w[name username bio created_at updated_at id user_id]
   end
 
-  def self.ransackable_associations(auth_object = nil)
-    ["subscription", "user"]
+  def self.ransackable_associations(*)
+    %w[subscription user]
   end
 end
