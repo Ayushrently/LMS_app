@@ -1,4 +1,6 @@
 class Enrollment < ApplicationRecord
+  attr_accessor :username
+
   validates :user_id, uniqueness: { scope: :course_id }
 
   belongs_to :user

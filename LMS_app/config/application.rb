@@ -18,6 +18,8 @@ module LMSApp
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
-    # config/application.rb
+    # Ensure service objects in app/services are autoloaded in all environments.
+    config.autoload_paths << Rails.root.join('app/services')
+    config.eager_load_paths << Rails.root.join('app/services')
   end
 end

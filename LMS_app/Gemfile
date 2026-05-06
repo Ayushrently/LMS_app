@@ -83,3 +83,4 @@ gem 'sassc-rails'
 gem "devise", "~> 5.0"
 
 gem "doorkeeper", "~> 5.9"
+gem "faraday", "~> 2.12"
