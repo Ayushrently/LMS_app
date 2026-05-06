@@ -1,8 +1,8 @@
 FactoryBot.define do
   factory :user do
     email { Faker::Internet.email }
-    password { "password" }
-    password_confirmation { "password" }
+    password { 'password' }
+    password_confirmation { 'password' }
 
     trait :with_profile do
       after(:create) do |user|
@@ -16,7 +16,7 @@ FactoryBot.define do
     description { Faker::Lorem.paragraph }
 
     trait :pro do
-      tier { "pro" }
+      tier { 'pro' }
     end
 
     trait :with_lessons do
@@ -33,7 +33,7 @@ FactoryBot.define do
 
   factory :lesson do
     sequence(:title) { |n| "Lesson #{n}" }
-    content { "This lesson content is long enough to satisfy validation." }
+    content { 'This lesson content is long enough to satisfy validation.' }
     association :course
   end
 
@@ -45,14 +45,14 @@ FactoryBot.define do
 
     trait :pro do
       after(:create) do |profile|
-        create(:subscription, profile: profile, plan_name: "pro")
+        create(:subscription, profile: profile, plan_name: 'pro')
       end
     end
   end
 
   factory :subscription do
     association :profile
-    plan_name { "basic" }
+    plan_name { 'basic' }
   end
 
   # factory :comment do

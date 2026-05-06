@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe 'API V1 Comments', type: :request do
   def json_response
-    JSON.parse(response.body)
+    response.parsed_body
   end
 
   describe 'POST /api/v1/courses/:course_id/comments' do
@@ -71,7 +71,7 @@ RSpec.describe 'API V1 Comments', type: :request do
     end
 
     it 'returns not found for a missing lesson id' do
-      post "/api/v1/courses/#{course.id}/lessons/999_999/comments",
+      post "/api/v1/courses/#{course.id}/lessons/999999/comments",
            params: params,
            headers: auth_headers_for(user)
 

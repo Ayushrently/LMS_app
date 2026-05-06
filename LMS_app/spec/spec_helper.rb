@@ -101,7 +101,6 @@ RSpec.configure do |config|
     # You can add custom filters here
     add_filter '/bin/'
     add_filter '/db/'
-    add_filter '/spec/' # Don't track coverage for the tests themselves!
-    add_filter '/app/admin/'
+    add_filter '/spec/'
   end
 end
