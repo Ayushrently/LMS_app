@@ -17,7 +17,7 @@ Rails.application.routes.draw do
   devise_scope :user do
     root to: "devise/sessions#new"
   end
-  
+
   get "workspace", to: "courses#workspace"
   resources :courses do 
     member do

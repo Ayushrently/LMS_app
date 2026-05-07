@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe 'API V1 Courses', type: :request do
-  let(:course_access_scopes) { 'public course_access' }
+  let!(:course_access_scopes) { 'public course_access' }
 
   def json_response
     JSON.parse(response.body)
@@ -48,8 +48,8 @@ RSpec.describe 'API V1 Courses', type: :request do
       perform_request
 
       expect(response).to have_http_status(:ok)
-      course_ids = json_response['enrolled_courses'].map { |course| course['id'] } +
-                   json_response['other_courses'].map { |course| course['id'] }
+      course_ids = json_response['enrolled_courses'].pluck('id') +
+                   json_response['other_courses'].pluck('id')
 
       expect(course_ids).to include(active_course.id)
       expect(course_ids).not_to include(deleted_course.id)
@@ -114,10 +114,11 @@ RSpec.describe 'API V1 Courses', type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it 'should allow a student to create a course and promote them to author' do
+    it 'should allow a student to create a course and promote them to author', :aggrigate_failures do
       expect { perform_request }.to change(Course, :count).by(1)
 
       expect(response).to have_http_status(:created)
+
       created_course = Course.order(:created_at).last
       expect(created_course.creator).to eq(user.profile.username)
       expect(created_course.authors).to include(user)

@@ -102,5 +102,6 @@ RSpec.configure do |config|
     add_filter '/bin/'
     add_filter '/db/'
     add_filter '/spec/'
+    add_filter '/app/admin'
   end
 end

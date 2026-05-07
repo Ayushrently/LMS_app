@@ -25,6 +25,42 @@ RSpec.describe 'Courses', type: :request do
 
       expect(response).to have_http_status(:ok)
     end
+
+    it 'renders courses returned by the API response payload' do
+      user = create(:user, :with_profile)
+      sign_in user
+
+      api_payload = {
+        enrolled_courses: [{ id: 101, title: 'API Enrolled Course', creator: 'alice', deleted_at: nil, tier: 'free' }],
+        other_courses: [{ id: 102, title: 'API Other Course', creator: 'bob', deleted_at: nil, tier: 'pro' }]
+      }
+      allow_any_instance_of(CoursesController).to receive(:fetch_courses_payload).and_return(api_payload.deep_stringify_keys)
+
+      get courses_path
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include('API Enrolled Course')
+      expect(response.body).to include('API Other Course')
+    end
+
+    it 'falls back to direct db query when API call raises an error' do
+      user = create(:user, :with_profile)
+      enrolled_course = create(:course, title: 'DB Enrolled Course')
+      other_course = create(:course, title: 'DB Other Course')
+      enrolled_course.authors << create(:user, :with_profile)
+      create(:enrollment, user: user, course: enrolled_course)
+
+      sign_in user
+
+      allow_any_instance_of(CoursesController).to receive(:fetch_courses_payload).and_raise(StandardError,
+                                                                                            'API unavailable')
+
+      get courses_path
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include('DB Enrolled Course')
+      expect(response.body).to include('DB Other Course')
+    end
   end
 
   describe 'POST /courses' do
