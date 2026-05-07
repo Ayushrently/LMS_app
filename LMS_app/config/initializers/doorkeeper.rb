@@ -22,13 +22,13 @@ Doorkeeper.configure do
 
   # This block will be called to check whether the resource owner is authenticated or not.
   use_refresh_token
-  grant_flows %w(password refresh_token)
+  grant_flows %w[password refresh_token]
   skip_client_authentication_for_password_grant true
   access_token_expires_in 30.seconds
 
   resource_owner_from_credentials do |_routes|
     user = User.find_for_database_authentication(email: params[:email])
-    
+
     if user && user.valid_password?(params[:password])
       user
     else

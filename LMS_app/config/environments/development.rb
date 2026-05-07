@@ -14,6 +14,9 @@ Rails.application.configure do
   # Show full error reports.
   config.consider_all_requests_local = true
 
+  # Allow concurrent request handling so internal web-to-API HTTP calls do not block.
+  config.allow_concurrency = true
+
   # Enable server timing
   config.server_timing = true
 
