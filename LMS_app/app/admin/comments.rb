@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ActiveAdmin.register Comment, as: 'UserComment' do
   preserve_default_filters!
 
@@ -6,7 +8,7 @@ ActiveAdmin.register Comment, as: 'UserComment' do
   filter :user_email, as: :string, label: 'User Email'
   filter :user_profile_username, as: :string, label: 'Username'
   filter :commentable_type, as: :select, collection: %w[Course Lesson]
-  filter :user, as: :select, collection: proc { User.all.pluck(:email, :id) }
+  filter :user, as: :select, collection: proc { User.pluck(:email, :id) }
 
   action_item :purge_old_comments, only: :index do
     link_to 'Purge Old Comments', purge_old_admin_user_comments_path,
@@ -14,8 +16,8 @@ ActiveAdmin.register Comment, as: 'UserComment' do
   end
 
   collection_action :purge_old, method: :delete do
-    count = Comment.where('created_at < ?', 6.months.ago).count
-    Comment.where('created_at < ?', 6.months.ago).delete_all
+    count = Comment.where(created_at: ...6.months.ago).count
+    Comment.where(created_at: ...6.months.ago).delete_all
     redirect_to collection_path, notice: "#{count} old comments purged."
   end
 

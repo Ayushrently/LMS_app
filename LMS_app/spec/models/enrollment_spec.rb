@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Enrollment, type: :model do
   subject(:enrollment) { create(:enrollment) }
 
-  context 'Relationships' do
+  context 'relationships' do
     it { should belong_to(:user) }
     it { should belong_to(:course) }
   end

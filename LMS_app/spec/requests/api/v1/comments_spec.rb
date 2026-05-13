@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe 'API V1 Comments', type: :request do
@@ -19,30 +21,39 @@ RSpec.describe 'API V1 Comments', type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it 'returns not found for a missing course id' do
-      post '/api/v1/courses/999_999/comments',
-           params: params,
-           headers: auth_headers_for(user)
+    context 'when course id does not exist' do
+      before do
+        post '/api/v1/courses/999_999/comments',
+             params: params,
+             headers: auth_headers_for(user)
+      end
 
-      expect(response).to have_http_status(:not_found)
-      expect(json_response['error']).to eq('Course not found')
+      it 'returns not found status and message', :aggregate_failures do
+        expect(response).to have_http_status(:not_found)
+        expect(json_response['error']).to eq('Course not found')
+      end
     end
 
-    it 'creates a course comment for an authenticated user' do
-      expect { perform_request }.to change(Comment, :count).by(1)
-
-      expect(response).to have_http_status(:created)
-      expect(json_response['commentable_type']).to eq('Course')
-      expect(json_response['user_id']).to eq(user.id)
+    context 'when request is valid' do
+      it 'creates a course comment with expected attributes', :aggregate_failures do
+        expect { perform_request }.to change(Comment, :count).by(1)
+        expect(response).to have_http_status(:created)
+        expect(json_response['commentable_type']).to eq('Course')
+        expect(json_response['user_id']).to eq(user.id)
+      end
     end
 
-    it 'returns unprocessable entity for invalid comment body' do
-      post path,
-           params: { comment: { body: 'hi' } },
-           headers: auth_headers_for(user)
+    context 'when comment body is invalid' do
+      before do
+        post path,
+             params: { comment: { body: 'hi' } },
+             headers: auth_headers_for(user)
+      end
 
-      expect(response).to have_http_status(:unprocessable_entity)
-      expect(json_response['errors']).to be_present
+      it 'returns unprocessable entity with errors', :aggregate_failures do
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json_response['errors']).to be_present
+      end
     end
   end
 
@@ -61,39 +72,52 @@ RSpec.describe 'API V1 Comments', type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it 'returns not found for a missing course id' do
-      post "/api/v1/courses/999_999/lessons/#{lesson.id}/comments",
-           params: params,
-           headers: auth_headers_for(user)
+    context 'when course id does not exist' do
+      before do
+        post "/api/v1/courses/999_999/lessons/#{lesson.id}/comments",
+             params: params,
+             headers: auth_headers_for(user)
+      end
 
-      expect(response).to have_http_status(:not_found)
-      expect(json_response['error']).to eq('Course not found')
+      it 'returns not found status and message', :aggregate_failures do
+        expect(response).to have_http_status(:not_found)
+        expect(json_response['error']).to eq('Course not found')
+      end
     end
 
-    it 'returns not found for a missing lesson id' do
-      post "/api/v1/courses/#{course.id}/lessons/999999/comments",
-           params: params,
-           headers: auth_headers_for(user)
+    context 'when lesson id does not exist' do
+      before do
+        post "/api/v1/courses/#{course.id}/lessons/999999/comments",
+             params: params,
+             headers: auth_headers_for(user)
+      end
 
-      expect(response).to have_http_status(:not_found)
-      expect(json_response['error']).to eq('Commentable not found')
+      it 'returns not found status and message', :aggregate_failures do
+        expect(response).to have_http_status(:not_found)
+        expect(json_response['error']).to eq('Commentable not found')
+      end
     end
 
-    it 'forbids lesson comments when the user is not enrolled' do
-      perform_request
+    context 'when user is not enrolled' do
+      before { perform_request }
 
-      expect(response).to have_http_status(:forbidden)
-      expect(json_response['error']).to eq('You must be enrolled in the course to comment on this lesson')
+      it 'returns forbidden with enrollment error', :aggregate_failures do
+        expect(response).to have_http_status(:forbidden)
+        expect(json_response['error']).to eq('You must be enrolled in the course to comment on this lesson')
+      end
     end
 
-    it 'creates a lesson comment for an enrolled user' do
-      create(:enrollment, user: user, course: course)
+    context 'when user is enrolled' do
+      before do
+        create(:enrollment, user: user, course: course)
+      end
 
-      expect { perform_request }.to change(Comment, :count).by(1)
-
-      expect(response).to have_http_status(:created)
-      expect(json_response['commentable_type']).to eq('Lesson')
-      expect(json_response['user_id']).to eq(user.id)
+      it 'creates a lesson comment with expected attributes', :aggregate_failures do
+        expect { perform_request }.to change(Comment, :count).by(1)
+        expect(response).to have_http_status(:created)
+        expect(json_response['commentable_type']).to eq('Lesson')
+        expect(json_response['user_id']).to eq(user.id)
+      end
     end
   end
 
@@ -111,26 +135,36 @@ RSpec.describe 'API V1 Comments', type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it 'returns not found for a missing course id' do
-      get "/api/v1/courses/999_999/comments/#{comment.id}", headers: auth_headers_for(user)
+    context 'when course id does not exist' do
+      before do
+        get "/api/v1/courses/999_999/comments/#{comment.id}", headers: auth_headers_for(user)
+      end
 
-      expect(response).to have_http_status(:not_found)
-      expect(json_response['error']).to eq('Course not found')
+      it 'returns not found status and message', :aggregate_failures do
+        expect(response).to have_http_status(:not_found)
+        expect(json_response['error']).to eq('Course not found')
+      end
     end
 
-    it 'returns not found for a missing comment id' do
-      get "/api/v1/courses/#{course.id}/comments/999_999", headers: auth_headers_for(user)
+    context 'when comment id does not exist' do
+      before do
+        get "/api/v1/courses/#{course.id}/comments/999_999", headers: auth_headers_for(user)
+      end
 
-      expect(response).to have_http_status(:not_found)
-      expect(json_response['error']).to eq('Comment not found')
+      it 'returns not found status and message', :aggregate_failures do
+        expect(response).to have_http_status(:not_found)
+        expect(json_response['error']).to eq('Comment not found')
+      end
     end
 
-    it 'returns the comment for an authenticated user' do
-      perform_request
+    context 'when request is valid' do
+      before { perform_request }
 
-      expect(response).to have_http_status(:ok)
-      expect(json_response['id']).to eq(comment.id)
-      expect(json_response['body']).to eq(comment.body)
+      it 'returns the requested comment payload', :aggregate_failures do
+        expect(response).to have_http_status(:ok)
+        expect(json_response['id']).to eq(comment.id)
+        expect(json_response['body']).to eq(comment.body)
+      end
     end
   end
 
@@ -149,49 +183,67 @@ RSpec.describe 'API V1 Comments', type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it 'returns not found for a missing course id' do
-      patch "/api/v1/courses/999_999/comments/#{comment.id}",
-            params: params,
-            headers: auth_headers_for(author)
+    context 'when course id does not exist' do
+      before do
+        patch "/api/v1/courses/999_999/comments/#{comment.id}",
+              params: params,
+              headers: auth_headers_for(author)
+      end
 
-      expect(response).to have_http_status(:not_found)
-      expect(json_response['error']).to eq('Course not found')
+      it 'returns not found status and message', :aggregate_failures do
+        expect(response).to have_http_status(:not_found)
+        expect(json_response['error']).to eq('Course not found')
+      end
     end
 
-    it 'returns not found for a missing comment id' do
-      patch "/api/v1/courses/#{course.id}/comments/999_999",
-            params: params,
-            headers: auth_headers_for(author)
+    context 'when comment id does not exist' do
+      before do
+        patch "/api/v1/courses/#{course.id}/comments/999_999",
+              params: params,
+              headers: auth_headers_for(author)
+      end
 
-      expect(response).to have_http_status(:not_found)
-      expect(json_response['error']).to eq('Comment not found')
+      it 'returns not found status and message', :aggregate_failures do
+        expect(response).to have_http_status(:not_found)
+        expect(json_response['error']).to eq('Comment not found')
+      end
     end
 
-    it 'rejects updates from users who do not own the comment' do
-      other_user = create(:user, :with_profile)
+    context 'when requester is not comment author' do
+      let(:other_user) { create(:user, :with_profile) }
 
-      patch path,
-            params: params,
-            headers: auth_headers_for(other_user)
+      before do
+        patch path,
+              params: params,
+              headers: auth_headers_for(other_user)
+      end
 
-      expect(response).to have_http_status(:unauthorized)
-      expect(json_response['error']).to eq('Not the author of the comment')
+      it 'returns unauthorized with author error', :aggregate_failures do
+        expect(response).to have_http_status(:unauthorized)
+        expect(json_response['error']).to eq('Not the author of the comment')
+      end
     end
 
-    it 'updates the comment for the comment owner' do
-      perform_request
+    context 'when request is valid' do
+      before { perform_request }
 
-      expect(response).to have_http_status(:ok)
-      expect(comment.reload.body).to eq('Updated body that is long enough.')
+      it 'updates the comment body', :aggregate_failures do
+        expect(response).to have_http_status(:ok)
+        expect(comment.reload.body).to eq('Updated body that is long enough.')
+      end
     end
 
-    it 'returns unprocessable entity for invalid update body' do
-      patch path,
-            params: { comment: { body: 'bad' } },
-            headers: auth_headers_for(author)
+    context 'when update params are invalid' do
+      before do
+        patch path,
+              params: { comment: { body: 'bad' } },
+              headers: auth_headers_for(author)
+      end
 
-      expect(response).to have_http_status(:unprocessable_entity)
-      expect(json_response['errors']).to be_present
+      it 'returns unprocessable entity with errors', :aggregate_failures do
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json_response['errors']).to be_present
+      end
     end
   end
 
@@ -209,43 +261,60 @@ RSpec.describe 'API V1 Comments', type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it 'returns not found for a missing course id' do
-      delete "/api/v1/courses/999_999/comments/#{comment.id}", headers: auth_headers_for(author)
+    context 'when course id does not exist' do
+      before do
+        delete "/api/v1/courses/999_999/comments/#{comment.id}", headers: auth_headers_for(author)
+      end
 
-      expect(response).to have_http_status(:not_found)
-      expect(json_response['error']).to eq('Course not found')
+      it 'returns not found status and message', :aggregate_failures do
+        expect(response).to have_http_status(:not_found)
+        expect(json_response['error']).to eq('Course not found')
+      end
     end
 
-    it 'returns not found for a missing comment id' do
-      delete "/api/v1/courses/#{course.id}/comments/999_999", headers: auth_headers_for(author)
+    context 'when comment id does not exist' do
+      before do
+        delete "/api/v1/courses/#{course.id}/comments/999_999", headers: auth_headers_for(author)
+      end
 
-      expect(response).to have_http_status(:not_found)
-      expect(json_response['error']).to eq('Comment not found')
+      it 'returns not found status and message', :aggregate_failures do
+        expect(response).to have_http_status(:not_found)
+        expect(json_response['error']).to eq('Comment not found')
+      end
     end
 
-    it 'returns an error when destruction fails' do
-      allow_any_instance_of(Comment).to receive(:destroy).and_return(false)
-      perform_request
+    context 'when comment destruction fails' do
+      before do
+        allow_any_instance_of(Comment).to receive(:destroy).and_return(false)
+        perform_request
+      end
 
-      expect(response).to have_http_status(:unprocessable_entity)
-      expect(json_response['errors']).to eq('Failed to delete comment')
+      it 'returns unprocessable entity with errors', :aggregate_failures do
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json_response['errors']).to eq('Failed to delete comment')
+      end
     end
 
-    it 'rejects deletion by users who do not own the comment' do
-      other_user = create(:user, :with_profile)
+    context 'when requester is not comment author' do
+      let(:other_user) { create(:user, :with_profile) }
 
-      delete path, headers: auth_headers_for(other_user)
+      before do
+        delete path, headers: auth_headers_for(other_user)
+      end
 
-      expect(response).to have_http_status(:unauthorized)
-      expect(json_response['error']).to eq('Not the author of the comment')
+      it 'returns unauthorized with author error', :aggregate_failures do
+        expect(response).to have_http_status(:unauthorized)
+        expect(json_response['error']).to eq('Not the author of the comment')
+      end
     end
 
-    it 'deletes the comment for the comment owner' do
-      comment
+    context 'when request is valid' do
+      before { comment }
 
-      expect { perform_request }.to change(Comment, :count).by(-1)
-
-      expect(response).to have_http_status(:no_content)
+      it 'deletes the comment and returns no content', :aggregate_failures do
+        expect { perform_request }.to change(Comment, :count).by(-1)
+        expect(response).to have_http_status(:no_content)
+      end
     end
   end
 end

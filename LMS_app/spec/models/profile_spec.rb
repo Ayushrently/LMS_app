@@ -1,11 +1,11 @@
-# freeze_string_literal: true
+# frozen_string_literal: true
 
 require 'rails_helper'
 
 RSpec.describe Profile, type: :model do
   subject(:profile) { create(:profile) }
 
-  context 'Relationships' do
+  context 'relationships' do
     it { should belong_to(:user) }
     it { should have_one(:subscription).dependent(:destroy) }
   end
@@ -13,14 +13,14 @@ RSpec.describe Profile, type: :model do
   describe '.includes ransackable attributes' do
     it('includes only the specified attributes') do
       expect(Profile.ransackable_attributes).to match_array(%w[
-                                                            name
-                                                            username
-                                                            bio
-                                                            created_at
-                                                            updated_at
-                                                            id
-                                                            user_id
-                                                          ])
+                                                              name
+                                                              username
+                                                              bio
+                                                              created_at
+                                                              updated_at
+                                                              id
+                                                              user_id
+                                                            ])
     end
   end
 

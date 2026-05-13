@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Lesson < ApplicationRecord
   before_validation :preprocess_data
 

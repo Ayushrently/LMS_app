@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Course < ApplicationRecord
   validates :title, :description, presence: true
   validates :title, length: { in: 5..100 }, uniqueness: { case_sensitive: false }
@@ -16,7 +18,7 @@ class Course < ApplicationRecord
                           after_remove: :remove_author_enrollment
   has_many :comments, as: :commentable, dependent: :destroy
 
-  scope :active, -> { where(deleted_at: nil) }
+  default_scope { where(deleted_at: nil) }
   scope :soft_deleted, -> { where.not(deleted_at: nil) }
 
   def soft_deleted?
@@ -67,12 +69,11 @@ class Course < ApplicationRecord
     throw(:abort)
   end
 
-
-  def self.ransackable_associations(auth_object = nil)
+  def self.ransackable_associations(_auth_object = nil)
     %w[enrollments authors users]
   end
 
-  def self.ransackable_attributes(auth_object = nil)
+  def self.ransackable_attributes(_auth_object = nil)
     %w[id title description tier creator created_at updated_at deleted_at]
   end
 end

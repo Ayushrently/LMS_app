@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe 'API V1 Profiles', type: :request do
   let(:profile_access_scopes) { 'public profile_access' }
 
   def json_response
-    JSON.parse(response.body)
+    response.parsed_body
   end
 
   describe 'GET /api/v1/users/:user_id/profile' do
@@ -19,28 +21,38 @@ RSpec.describe 'API V1 Profiles', type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it 'returns not found when user does not exist' do
-      get '/api/v1/users/999_999/profile', headers: auth_headers_for(user)
+    context 'when user does not exist' do
+      before do
+        get '/api/v1/users/999_999/profile', headers: auth_headers_for(user)
+      end
 
-      expect(response).to have_http_status(:not_found)
-      expect(json_response['error']).to eq('User not found')
+      it 'returns not found status and message', :aggregate_failures do
+        expect(response).to have_http_status(:not_found)
+        expect(json_response['error']).to eq('User not found')
+      end
     end
 
-    it 'returns the user profile for an authenticated request' do
-      perform_request
+    context 'when user has a profile' do
+      before { perform_request }
 
-      expect(response).to have_http_status(:ok)
-      expect(json_response['id']).to eq(user.profile.id)
-      expect(json_response['username']).to eq(user.profile.username)
+      it 'returns profile payload', :aggregate_failures do
+        expect(response).to have_http_status(:ok)
+        expect(json_response['id']).to eq(user.profile.id)
+        expect(json_response['username']).to eq(user.profile.username)
+      end
     end
 
-    it 'returns null when the user has no profile yet' do
-      user_without_profile = create(:user)
+    context 'when user has no profile' do
+      let(:user_without_profile) { create(:user) }
 
-      get "/api/v1/users/#{user_without_profile.id}/profile", headers: auth_headers_for(user_without_profile)
+      before do
+        get "/api/v1/users/#{user_without_profile.id}/profile", headers: auth_headers_for(user_without_profile)
+      end
 
-      expect(response).to have_http_status(:ok)
-      expect(json_response).to be_nil
+      it 'returns ok with null payload', :aggregate_failures do
+        expect(response).to have_http_status(:ok)
+        expect(json_response).to be_nil
+      end
     end
   end
 
@@ -60,40 +72,53 @@ RSpec.describe 'API V1 Profiles', type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it 'returns not found when user does not exist' do
-      post '/api/v1/users/999_999/profile',
-           params: { profile: profile_params },
-           headers: auth_headers_for(user)
+    context 'when user does not exist' do
+      before do
+        post '/api/v1/users/999_999/profile',
+             params: { profile: profile_params },
+             headers: auth_headers_for(user)
+      end
 
-      expect(response).to have_http_status(:not_found)
-      expect(json_response['error']).to eq('User not found')
+      it 'returns not found status and message', :aggregate_failures do
+        expect(response).to have_http_status(:not_found)
+        expect(json_response['error']).to eq('User not found')
+      end
     end
 
-    it 'creates a profile for a user without one' do
-      expect { perform_request }.to change(Profile, :count).by(1)
-
-      expect(response).to have_http_status(:created)
-      expect(json_response['username']).to eq('ayush_user')
+    context 'when user has no profile' do
+      it 'creates profile and returns created payload', :aggregate_failures do
+        expect { perform_request }.to change(Profile, :count).by(1)
+        expect(response).to have_http_status(:created)
+        expect(json_response['username']).to eq('ayush_user')
+      end
     end
 
-    it 'returns unprocessable entity when profile already exists' do
-      user_with_profile = create(:user, :with_profile)
+    context 'when user already has a profile' do
+      let(:user_with_profile) { create(:user, :with_profile) }
 
-      post "/api/v1/users/#{user_with_profile.id}/profile",
-           params: { profile: profile_params },
-           headers: auth_headers_for(user_with_profile)
+      before do
+        post "/api/v1/users/#{user_with_profile.id}/profile",
+             params: { profile: profile_params },
+             headers: auth_headers_for(user_with_profile)
+      end
 
-      expect(response).to have_http_status(:unprocessable_entity)
-      expect(json_response['error']).to eq('Profile already exists for this user')
+      it 'returns unprocessable entity and profile exists error', :aggregate_failures do
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json_response['error']).to eq('Profile already exists for this user')
+      end
     end
 
-    it 'returns unprocessable entity for invalid profile params' do
-      post path,
-           params: { profile: { name: 'ab', username: 'x', bio: 'Profile bio' } },
-           headers: auth_headers_for(user)
+    context 'when profile params are invalid' do
+      before do
+        post path,
+             params: { profile: { name: 'ab', username: 'x', bio: 'Profile bio' } },
+             headers: auth_headers_for(user)
+      end
 
-      expect(response).to have_http_status(:unprocessable_entity)
-      expect(json_response['errors']).to be_present
+      it 'returns unprocessable entity with validation errors', :aggregate_failures do
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json_response['errors']).to be_present
+      end
     end
   end
 
@@ -123,40 +148,54 @@ RSpec.describe 'API V1 Profiles', type: :request do
       expect(response).to have_http_status(:forbidden)
     end
 
-    it 'updates the profile with the profile_access scope' do
-      perform_request
+    context 'when request is valid' do
+      before { perform_request }
 
-      expect(response).to have_http_status(:ok)
-      expect(user.profile.reload.bio).to eq('Updated bio')
+      it 'updates profile and returns ok', :aggregate_failures do
+        expect(response).to have_http_status(:ok)
+        expect(user.profile.reload.bio).to eq('Updated bio')
+      end
     end
 
-    it 'returns not found when user does not exist' do
-      patch '/api/v1/users/999_999/profile',
-            params: params,
-            headers: auth_headers_for(user, scopes: profile_access_scopes)
+    context 'when user does not exist' do
+      before do
+        patch '/api/v1/users/999_999/profile',
+              params: params,
+              headers: auth_headers_for(user, scopes: profile_access_scopes)
+      end
 
-      expect(response).to have_http_status(:not_found)
-      expect(json_response['error']).to eq('User not found')
+      it 'returns not found status and message', :aggregate_failures do
+        expect(response).to have_http_status(:not_found)
+        expect(json_response['error']).to eq('User not found')
+      end
     end
 
-    it 'forbids updates to another users profile' do
-      other_user = create(:user, :with_profile)
+    context 'when requester updates another users profile' do
+      let(:other_user) { create(:user, :with_profile) }
 
-      patch "/api/v1/users/#{other_user.id}/profile",
-            params: params,
-            headers: auth_headers_for(user, scopes: profile_access_scopes)
+      before do
+        patch "/api/v1/users/#{other_user.id}/profile",
+              params: params,
+              headers: auth_headers_for(user, scopes: profile_access_scopes)
+      end
 
-      expect(response).to have_http_status(:forbidden)
-      expect(json_response['error']).to eq("You cannot change other's profile")
+      it 'returns forbidden with ownership error', :aggregate_failures do
+        expect(response).to have_http_status(:forbidden)
+        expect(json_response['error']).to eq("You cannot change other's profile")
+      end
     end
 
-    it 'returns unprocessable entity for invalid update params' do
-      patch path,
-            params: { profile: { username: 'x' } },
-            headers: auth_headers_for(user, scopes: profile_access_scopes)
+    context 'when update params are invalid' do
+      before do
+        patch path,
+              params: { profile: { username: 'x' } },
+              headers: auth_headers_for(user, scopes: profile_access_scopes)
+      end
 
-      expect(response).to have_http_status(:unprocessable_entity)
-      expect(json_response['errors']).to be_present
+      it 'returns unprocessable entity with validation errors', :aggregate_failures do
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json_response['errors']).to be_present
+      end
     end
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe 'Comments', type: :request do
@@ -37,7 +39,8 @@ RSpec.describe 'Comments', type: :request do
 
     it 'creates a lesson comment and redirects to the lesson comments section' do
       expect do
-        post course_lesson_comments_path(course, lesson), params: { comment: { body: 'This is a valid lesson comment.' } }
+        post course_lesson_comments_path(course, lesson),
+             params: { comment: { body: 'This is a valid lesson comment.' } }
       end.to change(Comment, :count).by(1)
 
       expect(response).to redirect_to(course_lesson_path(course, lesson, anchor: 'comments-section'))

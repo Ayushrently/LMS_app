@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class EnrollmentsController < ApplicationController
   before_action :set_course
 
@@ -5,11 +7,11 @@ class EnrollmentsController < ApplicationController
     enrollment = @course.enrollments.build(user: current_user, enrolled_at: Time.current)
     privileged_user = current_user.profile.subscription&.pro? || @course.free?
     if privileged_user && enrollment.save
-      redirect_to course_path(@course), notice: "Successfully enrolled in course."
+      redirect_to course_path(@course), notice: 'Successfully enrolled in course.'
     elsif !privileged_user
-      redirect_to course_path(@course), alert: "You need a Pro subscription to enroll in this course."
+      redirect_to course_path(@course), alert: 'You need a Pro subscription to enroll in this course.'
     else
-      redirect_to course_path(@course), alert: "Unable to enroll. Please try again."
+      redirect_to course_path(@course), alert: 'Unable to enroll. Please try again.'
     end
   end
 
@@ -24,11 +26,12 @@ class EnrollmentsController < ApplicationController
   end
 
   private
+
   def enrollment_params
     params.require(:enrollment).permit(:user_id)
   end
 
   def set_course
-    @course = Course.find_by(id:params[:course_id])
+    @course = Course.find_by(id: params[:course_id])
   end
 end
