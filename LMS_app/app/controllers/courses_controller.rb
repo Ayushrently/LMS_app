@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CoursesController < ApplicationController
   before_action :set_course, only: %i[show edit update destroy update_authors]
 
@@ -6,7 +8,7 @@ class CoursesController < ApplicationController
     @enrolled_courses = courses_from_api(payload['enrolled_courses'])
     @other_courses = courses_from_api(payload['other_courses'])
     # Rails.logger.info('[CoursesController#index] source=api status=success')
-  rescue StandardError => e
+  rescue StandardError
     load_courses_from_database
     # Rails.logger.error("[CoursesController#index] source=db_fallback reason=#{e.class}: #{e.message}")
     flash.now[:alert] = 'Could not load courses from API. Showing direct database results.'
@@ -52,12 +54,12 @@ class CoursesController < ApplicationController
   end
 
   def workspace
-    @courses = current_user.authored_courses.active.order(updated_at: :desc)
+    @courses = current_user.authored_courses.order(updated_at: :desc)
   end
 
   def update_authors
     creator_username = @course.creator
-    parsed_usernames = params[:authors_csv].to_s.split(',').map(&:strip).reject(&:blank?)
+    parsed_usernames = params[:authors_csv].to_s.split(',').map(&:strip).compact_blank
     requested_identifiers = ([creator_username] + parsed_usernames).compact.uniq
 
     users = User.joins(:profile).where(profiles: { username: parsed_usernames }).includes(:profile)
@@ -155,7 +157,7 @@ class CoursesController < ApplicationController
   end
 
   def load_courses_from_database
-    available_courses = Course.active.select(:title, :id, :creator, :deleted_at, :tier)
+    available_courses = Course.select(:title, :id, :creator, :deleted_at, :tier)
                               .order(created_at: :desc).limit(20)
 
     authored_course_ids = current_user.authored_course_ids

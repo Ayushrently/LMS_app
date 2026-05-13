@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module AuthHelpers
   module Web
     def sign_in_web(user = create(:user))

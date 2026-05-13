@@ -1,25 +1,26 @@
+# frozen_string_literal: true
+
 # Seed script for LMS demo data.
 # Usage: bin/rails db:seed
 
-require "faker"
-require "set"
+require 'faker'
 
 Faker::Config.random = Random.new(42)
 
-puts "Cleaning existing data..."
+Rails.logger.debug 'Cleaning existing data...'
 
 ActiveAdmin::Comment.delete_all if defined?(ActiveAdmin::Comment)
 Comment.delete_all
 Enrollment.delete_all
 Lesson.delete_all
-Course.connection.execute("DELETE FROM courses_users")
+Course.connection.execute('DELETE FROM courses_users')
 Course.delete_all
 Subscription.delete_all
 Profile.delete_all
 User.delete_all
 AdminUser.delete_all if defined?(AdminUser)
 
-puts "Creating users, profiles, and subscriptions..."
+Rails.logger.debug 'Creating users, profiles, and subscriptions...'
 
 AUTHOR_COUNT = 12
 STUDENT_COUNT = 30
@@ -28,20 +29,18 @@ LESSONS_PER_COURSE = 4
 COMMENTS_COUNT = 80
 MIN_STUDENT_COURSES = 3
 MAX_STUDENT_COURSES = 6
-PASSWORD = "password123"
+PASSWORD = 'password123'
 
 clamp_text = lambda do |text, min:, max:|
-  cleaned = text.to_s.gsub(/\s+/, " ").strip
+  cleaned = text.to_s.gsub(/\s+/, ' ').strip
   cleaned = cleaned[0, max] if cleaned.length > max
-  if cleaned.length < min
-    cleaned = cleaned.ljust(min, "x")
-  end
+  cleaned = cleaned.ljust(min, 'x') if cleaned.length < min
   cleaned
 end
 
 used_usernames = Set.new
 next_username = lambda do |seed_text|
-  base = seed_text.to_s.downcase.gsub(/[^a-z0-9]/, "")[0, 16]
+  base = seed_text.to_s.downcase.gsub(/[^a-z0-9]/, '')[0, 16]
   base = "user#{Faker::Config.random.rand(1000..9999)}" if base.length < 3
 
   candidate = base
@@ -76,8 +75,8 @@ build_people_payload = lambda do |kind, count:|
   end
 end
 
-author_payloads = build_people_payload.call("author", count: AUTHOR_COUNT)
-student_payloads = build_people_payload.call("student", count: STUDENT_COUNT)
+author_payloads = build_people_payload.call('author', count: AUTHOR_COUNT)
+student_payloads = build_people_payload.call('student', count: STUDENT_COUNT)
 
 # 1) Users
 author_users = author_payloads.map do |payload|
@@ -127,7 +126,7 @@ end
 authors = author_users
 students = student_users
 
-puts "Creating courses, lessons, and enrollments..."
+Rails.logger.debug 'Creating courses, lessons, and enrollments...'
 
 used_course_titles = Set.new
 next_course_title = lambda do
@@ -160,10 +159,9 @@ courses = Array.new(COURSE_COUNT).map do
   )
 
   # Deduped insert prevents duplicate rows in courses_users.
-  authors_for_course.each { |author| course.authors << author }
-
-  # Enforce that every course author is enrolled, even if callbacks are changed/bypassed.
   authors_for_course.each do |author|
+    course.authors << author
+    # Enforce that every course author is enrolled, even if callbacks are changed/bypassed.
     enrollment = Enrollment.find_or_create_by!(user: author, course: course)
     enrollment.update!(enrolled_at: Time.current) if enrollment.enrolled_at.nil?
   end
@@ -173,7 +171,7 @@ courses = Array.new(COURSE_COUNT).map do
     lesson_title = nil
 
     20.times do
-      raw_title = "#{Faker::Verb.base.capitalize} #{Faker::ProgrammingLanguage.name}".gsub(/[^a-zA-Z0-9 ]/, "")
+      raw_title = "#{Faker::Verb.base.capitalize} #{Faker::ProgrammingLanguage.name}".gsub(/[^a-zA-Z0-9 ]/, '')
       candidate = clamp_text.call(raw_title, min: 5, max: 20)
       next if used_lesson_titles.include?(candidate.downcase)
 
@@ -194,7 +192,7 @@ courses = Array.new(COURSE_COUNT).map do
   course
 end
 
-puts "Creating student enrollments..."
+Rails.logger.debug 'Creating student enrollments...'
 
 students.each do |student|
   selected_courses = courses.sample(Faker::Config.random.rand(MIN_STUDENT_COURSES..MAX_STUDENT_COURSES), random: Faker::Config.random)
@@ -204,7 +202,7 @@ students.each do |student|
   end
 end
 
-puts "Creating comments for activity..."
+Rails.logger.debug 'Creating comments for activity...'
 
 comment_targets = courses + courses.flat_map(&:lessons)
 comment_authors = authors + students
@@ -218,12 +216,14 @@ COMMENTS_COUNT.times do
 end
 
 AdminUser.create!(
-  email: "admin@example.com",
-  password: "password123",
-  password_confirmation: "password123"
+  email: 'admin@example.com',
+  password: 'password123',
+  password_confirmation: 'password123'
 )
 
-puts "Seeding complete."
-puts "Users: #{User.count} (Authors: #{authors.count}, Students: #{students.count})"
-puts "Profiles: #{Profile.count}, Subscriptions: #{Subscription.count}"
-puts "Courses: #{Course.count}, Lessons: #{Lesson.count}, Enrollments: #{Enrollment.count}, Comments: #{Comment.count}"
+Rails.logger.debug 'Seeding complete.'
+Rails.logger.debug { "Users: #{User.count} (Authors: #{authors.count}, Students: #{students.count})" }
+Rails.logger.debug { "Profiles: #{Profile.count}, Subscriptions: #{Subscription.count}" }
+Rails.logger.debug do
+  "Courses: #{Course.count}, Lessons: #{Lesson.count}, Enrollments: #{Enrollment.count}, Comments: #{Comment.count}"
+end

@@ -1,5 +1,6 @@
-ActiveAdmin.register Lesson do
+# frozen_string_literal: true
 
+ActiveAdmin.register Lesson do
   # See permitted parameters documentation:
   # https://github.com/activeadmin/activeadmin/blob/master/docs/2-resource-customization.md#setting-up-strong-parameters
   #
@@ -18,8 +19,7 @@ ActiveAdmin.register Lesson do
   # end
   filter :title
   filter :content
-  filter :course_title, as: :string, label: "Course"
+  filter :course_title, as: :string, label: 'Course'
 
-  
   remove_filter :comments, :course
 end

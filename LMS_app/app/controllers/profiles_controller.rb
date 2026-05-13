@@ -1,12 +1,17 @@
+# frozen_string_literal: true
+
 class ProfilesController < ApplicationController
   before_action :set_user
   before_action :set_profile
 
-  def show
-  end
+  def show; end
 
   def new
     redirect_to edit_user_profile_path(@user) if @profile.persisted?
+  end
+
+  def edit
+    redirect_to new_user_profile_path(@user) unless @profile.persisted?
   end
 
   def create
@@ -18,10 +23,6 @@ class ProfilesController < ApplicationController
       ensure_subscription
       render :new, status: :unprocessable_entity
     end
-  end
-
-  def edit
-    redirect_to new_user_profile_path(@user) unless @profile.persisted?
   end
 
   def update
@@ -36,7 +37,7 @@ class ProfilesController < ApplicationController
   private
 
   def set_user
-    @user = User.find_by(id:params[:user_id])
+    @user = User.find_by(id: params[:user_id])
   end
 
   def set_profile
@@ -45,7 +46,7 @@ class ProfilesController < ApplicationController
   end
 
   def ensure_subscription
-    @profile.build_subscription unless @profile.subscription.present?
+    @profile.build_subscription if @profile.subscription.blank?
   end
 
   def profile_params
@@ -53,7 +54,7 @@ class ProfilesController < ApplicationController
       :name,
       :bio,
       :username,
-      subscription_attributes: [:id, :plan_name]
+      subscription_attributes: %i[id plan_name]
     )
   end
 end

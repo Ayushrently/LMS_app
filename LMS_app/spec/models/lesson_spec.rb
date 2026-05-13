@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Lesson, type: :model do
   subject(:lesson) { create(:lesson) }
 
-  context 'Relationships' do
+  context 'relationships' do
     it { should belong_to(:course) }
     it { is_expected.to have_many(:comments).dependent(:destroy) }
   end
@@ -19,10 +19,12 @@ RSpec.describe Lesson, type: :model do
   end
 
   describe '.preprocess_data' do
-    it 'strips leading and trailing whitespace from title and content' do
+    it 'strips leading and trailing whitespace from title and content', :aggregate_failures do
       lesson = build(:lesson, title: '  Sample Title  ',
                               content: '  This lesson content is long enough to satisfy validation.  ')
-      lesson.valid? # Trigger validations and callbacks
+
+      lesson.valid?
+
       expect(lesson.title).to eq('Sample Title')
       expect(lesson.content).to eq('This lesson content is long enough to satisfy validation.')
     end

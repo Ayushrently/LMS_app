@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class UsersController < ApplicationController
   before_action :set_user, only: [:show]
 
@@ -12,7 +14,6 @@ class UsersController < ApplicationController
   private
 
   def set_user
-    @user = User.find_by(id:params[:id])
+    @user = User.find_by(id: params[:id])
   end
-
 end

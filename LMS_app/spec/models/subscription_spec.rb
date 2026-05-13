@@ -1,11 +1,11 @@
-#
+# frozen_string_literal: true
 
 require 'rails_helper'
 
 RSpec.describe Subscription, type: :model do
   subject(:subscription) { create(:subscription) }
 
-  context 'Relationships' do
+  context 'relationships' do
     it { should belong_to(:profile) }
   end
 

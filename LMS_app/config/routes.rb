@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Rails.application.routes.draw do
   use_doorkeeper
   devise_for :admin_users, ActiveAdmin::Devise.config
@@ -11,50 +13,52 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   authenticated :user do
-    root to: "courses#index", as: :authenticated_root
+    root to: 'courses#index', as: :authenticated_root
   end
 
   devise_scope :user do
-    root to: "devise/sessions#new"
+    root to: 'devise/sessions#new'
   end
 
-  get "workspace", to: "courses#workspace"
-  resources :courses do 
+  get 'workspace', to: 'courses#workspace'
+  resources :courses do
     member do
       patch :update_authors
     end
     resources :lessons do
-      resources :comments, only: [:create, :edit, :update, :destroy]
+      resources :comments, only: %i[create edit update destroy]
     end
-    resources :comments, only: [:create, :edit, :update, :destroy]
-    resources :enrollments, only: [:create, :destroy]
+    resources :comments, only: %i[create edit update destroy]
+    resources :enrollments, only: %i[create destroy]
   end
 
   resources :users, only: [:show] do
-    resource :profile, only: [:show, :new, :create, :edit, :update]
+    resource :profile, only: %i[show new create edit update]
   end
 
   # API routes
   namespace :api do
     namespace :v1 do
-      get "workspace", to: "courses#workspace"
+      get 'workspace', to: 'courses#workspace'
 
-      resources :courses, except: [:new, :edit] do
+      resources :courses, except: %i[new edit] do
         member do
           get :authors
           patch :add_authors
           patch :remove_authors
         end
-        resources :lessons, except: [:new, :edit] do
-          resources :comments, except: [:new, :edit]
+        collection do
+          get :search
         end
-        resources :comments, except: [:new, :edit]
-        resource :enrollment, only: [:create, :destroy]
+        resources :lessons, except: %i[new edit] do
+          resources :comments, except: %i[new edit]
+        end
+        resources :comments, except: %i[new edit]
+        resource :enrollment, only: %i[create destroy]
       end
       resources :users, only: [:show] do
-        resource :profile, only: [:show, :create, :update]
+        resource :profile, only: %i[show create update]
       end
     end
   end
-
 end

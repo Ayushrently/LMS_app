@@ -1,5 +1,6 @@
-ActiveAdmin.register User do
+# frozen_string_literal: true
 
+ActiveAdmin.register User do
   # See permitted parameters documentation:
   # https://github.com/activeadmin/activeadmin/blob/master/docs/2-resource-customization.md#setting-up-strong-parameters
   #
@@ -11,7 +12,7 @@ ActiveAdmin.register User do
   permit_params :email, :password, :password_confirmation
 
   form do |f|
-    f.inputs "User Details" do
+    f.inputs 'User Details' do
       f.input :email
       f.input :password
       f.input :password_confirmation
@@ -29,22 +30,22 @@ ActiveAdmin.register User do
     end
   end
 
-    index do
-      column :id
-      column :email
-      column :created_at
-      column :updated_at
-      actions
-    end
+  index do
+    column :id
+    column :email
+    column :created_at
+    column :updated_at
+    actions
+  end
 
-    show do
-      attributes_table do
-        row :id
-        row :email
-        row :created_at
-        row :updated_at
-      end
+  show do
+    attributes_table do
+      row :id
+      row :email
+      row :created_at
+      row :updated_at
     end
+  end
 
   #
   # or

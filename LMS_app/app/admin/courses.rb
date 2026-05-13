@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ActiveAdmin.register Course do
   # See permitted parameters documentation:
   # https://github.com/activeadmin/activeadmin/blob/master/docs/2-resource-customization.md#setting-up-strong-parameters
@@ -31,7 +33,7 @@ ActiveAdmin.register Course do
   batch_action :destroy, false
 
   batch_action :soft_delete, confirm: 'Soft delete selected courses?' do |ids|
-    Course.where(id: ids).each(&:soft_delete!)
+    Course.where(id: ids).find_each(&:soft_delete!)
     redirect_to collection_path, notice: 'Selected courses have been soft deleted.'
   end
 
@@ -45,10 +47,10 @@ ActiveAdmin.register Course do
   end
 
   batch_action :restore, confirm: 'Restore selected courses?' do |ids|
-    Course.where(id: ids).each do |course|
+    Course.where(id: ids).find_each do |course|
       course.update!(deleted_at: nil)
       creator = User.find_by(id: course.creator)
-      course.authors << creator if creator && !course.authors.include?(creator)
+      course.authors << creator if creator && course.authors.exclude?(creator)
     end
     redirect_to collection_path, notice: 'Selected courses have been restored.'
   end
@@ -125,10 +127,9 @@ ActiveAdmin.register Course do
     def user_from_creator_identifier(identifier)
       return nil if identifier.blank?
 
-      User
-        .joins(:profile)
-        .includes(:profile)
-        .find_by('profiles.username = :value OR profiles.name = :value OR users.email = :value', value: identifier)
+      User.joins(:profile)
+          .includes(:profile)
+          .find_by('profiles.username = :value OR profiles.name = :value OR users.email = :value', value: identifier)
     end
   end
 end

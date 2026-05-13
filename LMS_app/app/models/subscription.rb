@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Subscription < ApplicationRecord
   enum :plan_name, { basic: 'basic', pro: 'pro' }, default: :basic
 
